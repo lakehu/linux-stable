@@ -1,4 +1,3 @@
-/* * Last edited: Nov 17 16:28 1995 (cort) */
 #ifndef _ASM_PPC_UNISTD_H_
 #define _ASM_PPC_UNISTD_H_
 
@@ -154,97 +153,145 @@
 #define __NR__newselect		142
 #define __NR_flock		143
 #define __NR_msync		144
-/*#define __NR_kclone		145*/
+#define __NR_readv		145
+#define __NR_writev		146
+#define __NR_getsid		147
+
+#define __NR_mlock		150
+#define __NR_munlock		151
+#define __NR_mlockall		152
+#define __NR_munlockall		153
 
 
-/* XXX - _foo needs to be __foo, while __NR_bar could be _NR_bar. */
 #define _syscall0(type,name) \
 type name(void) \
 { \
- __asm__ (_lisc(__NR_##name)); \
- __asm__ ("sc"); \
- __asm__ ("mr 31,3"); \
- __asm__ ("bns 10f"); \
- __asm__ ("mr 0,3"); \
- __asm__ ("lis 3,errno@ha"); \
- __asm__ ("stw 0,errno@l(3)"); \
- __asm__ ("li 3,-1"); \
- __asm__ ("10:"); \
+    long retval; \
+    __asm__  ( \
+	      "li 0, %0 \n\t" \
+	      "sc \n\t" \
+	      "mr 31,3 \n\t" \
+	      "bns 10f \n\t" \
+	      "mr 0,3 \n\t" \
+	      "lis 3,errno@ha \n\t" \
+	      "stw 0,errno@l(3) \n\t" \
+	      "li 3,-1 \n\t" \
+	      "10: \n\t" \
+	      : \
+	      : "i" (__NR_##name) \
+	      : "0", "31", "3", "cc", "memory" \
+	      );  \
+    return(retval);\
 }
 
 #define _syscall1(type,name,type1,arg1) \
 type name(type1 arg1) \
 { \
- __asm__ (_lisc(__NR_##name)); \
- __asm__ ("sc"); \
- __asm__ ("mr 31,3"); \
- __asm__ ("bns 10f"); \
- __asm__ ("mr 0,3"); \
- __asm__ ("lis 3,errno@ha"); \
- __asm__ ("stw 0,errno@l(3)"); \
- __asm__ ("li 3,-1"); \
- __asm__ ("10:"); \
+    long retval; \
+    __asm__  ( \
+	      "li 0, %0 \n\t" \
+	      "sc \n\t" \
+	      "mr 31,3 \n\t" \
+	      "bns 10f \n\t" \
+	      "mr 0,3 \n\t" \
+	      "lis 3,errno@ha \n\t" \
+	      "stw 0,errno@l(3) \n\t" \
+	      "li 3,-1 \n\t" \
+	      "10: \n\t" \
+	      : \
+	      : "i" (__NR_##name) \
+	      : "0", "31", "3", "cc", "memory" \
+	      );  \
+    return(retval); \
 }
 
 #define _syscall2(type,name,type1,arg1,type2,arg2) \
 type name(type1 arg1,type2 arg2) \
 { \
- __asm__ (_lisc(__NR_##name)); \
- __asm__ ("sc"); \
- __asm__ ("mr 31,3"); \
- __asm__ ("bns 10f"); \
- __asm__ ("mr 0,3"); \
- __asm__ ("lis 3,errno@ha"); \
- __asm__ ("stw 0,errno@l(3)"); \
- __asm__ ("li 3,-1"); \
- __asm__ ("10:"); \
+    long retval; \
+    __asm__  ( \
+	      "li 0, %0 \n\t" \
+	      "sc \n\t" \
+	      "mr 31,3 \n\t" \
+	      "bns 10f \n\t" \
+	      "mr 0,3 \n\t" \
+	      "lis 3,errno@ha \n\t" \
+	      "stw 0,errno@l(3) \n\t" \
+	      "li 3,-1 \n\t" \
+	      "10: \n\t" \
+	      : \
+	      : "i" (__NR_##name) \
+	      : "0", "31", "3", "cc", "memory" \
+	      );  \
+    return(retval); \
 }
 
+
 #define _syscall3(type,name,type1,arg1,type2,arg2,type3,arg3) \
-type name(type1 arg1,type2 arg2,type3 arg3) \
+type name(type1 arg1,type2 arg2, type3 arg3) \
 { \
- __asm__ (_lisc(__NR_##name)); \
- __asm__ ("sc"); \
- __asm__ ("mr 31,3"); \
- __asm__ ("bns 10f"); \
- __asm__ ("mr 0,3"); \
- __asm__ ("lis 3,errno@ha"); \
- __asm__ ("stw 0,errno@l(3)"); \
- __asm__ ("li 3,-1"); \
- __asm__ ("10:"); \
+    long retval; \
+    __asm__  ( \
+	      "li 0, %0 \n\t" \
+	      "sc \n\t" \
+	      "mr 31,3 \n\t" \
+	      "bns 10f \n\t" \
+	      "mr 0,3 \n\t" \
+	      "lis 3,errno@ha \n\t" \
+	      "stw 0,errno@l(3) \n\t" \
+	      "li 3,-1 \n\t" \
+	      "10: \n\t" \
+	      : \
+	      : "i" (__NR_##name) \
+	      : "0", "31", "3", "cc", "memory" \
+	      );  \
+    return(retval); \
 }
 
 #define _syscall4(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4) \
 type name (type1 arg1, type2 arg2, type3 arg3, type4 arg4) \
 { \
- __asm__ (_lisc(__NR_##name)); \
- __asm__ ("sc"); \
- __asm__ ("mr 31,3"); \
- __asm__ ("bns 10f"); \
- __asm__ ("mr 0,3"); \
- __asm__ ("lis 3,errno@ha"); \
- __asm__ ("stw 0,errno@l(3)"); \
- __asm__ ("li 3,-1"); \
- __asm__ ("10:"); \
-} 
+    long retval; \
+    __asm__  ( \
+	      "li 0, %0 \n\t" \
+	      "sc \n\t" \
+	      "mr 31,3 \n\t" \
+	      "bns 10f \n\t" \
+	      "mr 0,3 \n\t" \
+	      "lis 3,errno@ha \n\t" \
+	      "stw 0,errno@l(3) \n\t" \
+	      "li 3,-1 \n\t" \
+	      "10: \n\t" \
+	      : \
+	      : "i" (__NR_##name) \
+	      : "0", "31", "3", "cc", "memory" \
+	      );  \
+    return(retval); \
+}
 
 #define _syscall5(type,name,type1,arg1,type2,arg2,type3,arg3,type4,arg4, \
 	  type5,arg5) \
 type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5) \
 { \
- __asm__ (_lisc(__NR_##name)); \
- __asm__ ("sc"); \
- __asm__ ("mr 31,3"); \
- __asm__ ("bns 10f"); \
- __asm__ ("mr 0,3"); \
- __asm__ ("lis 3,errno@ha"); \
- __asm__ ("stw 0,errno@l(3)"); \
- __asm__ ("li 3,-1"); \
- __asm__ ("10:"); \
+    long retval; \
+    __asm__  ( \
+	      "li 0, %0 \n\t" \
+	      "sc \n\t" \
+	      "mr 31,3 \n\t" \
+	      "bns 10f \n\t" \
+	      "mr 0,3 \n\t" \
+	      "lis 3,errno@ha \n\t" \
+	      "stw 0,errno@l(3) \n\t" \
+	      "li 3,-1 \n\t" \
+	      "10: \n\t" \
+	      : \
+	      : "i" (__NR_##name) \
+	      : "0", "31", "3", "cc", "memory" \
+	      );  \
+    return(retval); \
 }
 
 #ifdef __KERNEL_SYSCALLS__
-
 /*
  * we need this inline - forking from kernel space will result
  * in NO COPY ON WRITE (!!!), until an execve is executed. This
@@ -258,83 +305,72 @@ type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5) \
  * some others too.
  */
 
-extern long __kernel_thread(unsigned long, int (*)(void *), void *);
-
-static inline long kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
-{
-	return __kernel_thread(flags | CLONE_VM, fn, arg);
-}
- 
 /*
    some of these had problems getting the right arguments (namely sys_clone())
-   when they were inline.
+   when they were inline so I made them non-inline until we get problems with gcc
+   worked out.  I need to check with Linus to find out which he wants inline now
+   since the above comment was written a long time ago.
+
+   Once I understand the macro language better this should go away.
              -- Cort
  */
+
 #define __NR__exit __NR_exit
-static inline _syscall0(int,idle) /* made inline "just in case" -- Cort */
-static inline _syscall0(int,fork) /* needs to be inline */
-static inline _syscall0(int,pause) /* needs to be inline */
-static inline _syscall0(int,setup) /* called in init before execve */
-static inline _syscall0(int,sync)
-static inline _syscall0(pid_t,setsid)
-static /*inline*/ _syscall3(int,write,int,fd,const char *,buf,off_t,count)
-static /*inline*/ _syscall1(int,dup,int,fd)
-static /*inline*/ _syscall3(int,execve,const char *,file,char **,argv,char **,envp)
-static /*inline*/ _syscall3(int,open,const char *,file,int,flag,int,mode)
-static inline _syscall1(int,close,int,fd)
-static /*inline*/ _syscall1(int,_exit,int,exitcode)
-static inline _syscall3(pid_t,waitpid,pid_t,pid,int *,wait_stat,int,options)
-/*static inline _syscall2(int,clone,unsigned long,flags,char *,esp)*/
+static /*__inline__*/ _syscall0(int,setup) 
+static __inline__ _syscall0(int,idle) 
+static /*__inline__*/ _syscall0(int,fork)
+static __inline__ _syscall0(int,pause)
+static __inline__ _syscall0(int,sync)
+static __inline__ _syscall0(pid_t,setsid)
+static __inline__ _syscall3(int,write,int,fd,const char *,buf,off_t,count)
+static /*__inline__*/ _syscall1(int,dup,int,fd)
+static /*__inline__*/ _syscall3(int,execve,const char *,file,char **,argv,char **,envp)
+static __inline__ _syscall3(int,open,const char *,file,int,flag,int,mode)
+static /*__inline__*/ _syscall1(int,close,int,fd)
+static /*__inline__*/ _syscall1(int,_exit,int,exitcode)
+static __inline__ _syscall2(int,clone,unsigned long,flags,char *,esp)
+static __inline__ _syscall3(pid_t,waitpid,pid_t,pid,int *,wait_stat,int,options)
 
-/*
-   syscalls from kernel mode is a little strange and I can't get used to
-   the idea -- this makes me feel better.   -- Cort
- */
-/*static inline int kclone (void)
-{
- __asm__ (_lisc(__NR_kclone)); 
- __asm__ ("sc"); 
- __asm__ ("mr 31,3"); 
- __asm__ ("bns 10f"); 
- __asm__ ("mr 0,3"); 
- __asm__ ("lis 3,errno@ha"); 
- __asm__ ("stw 0,errno@l(3)"); 
- __asm__ ("li 3,-1"); 
- __asm__ ("10:");   
-}*/
-
-static inline int clone (unsigned long flags,char *esp)
-{
-/*  printk("unistd.h: clone(): flags = %x, esp = %x\n", flags, esp);*/
- __asm__ (_lisc(__NR_clone)); 
- __asm__ ("sc");
- __asm__ ("mr 31,3"); 
-
-/* this is a hack to get the damned thing to return something even though inlined
-   -- Cort
-   */
- __asm__ ("mr 0,3"); 
- __asm__ ("lis 3,errno@ha"); 
- __asm__ ("stw 0,errno@l(3)"); 
- 
- __asm__ ("bns 10f"); 
- __asm__ ("mr 0,3"); 
- __asm__ ("lis 3,errno@ha"); 
- __asm__ ("stw 0,errno@l(3)"); 
- __asm__ ("li 3,-1"); 
- __asm__ ("10:");
- return errno;
-}
-
-
-/* called from init before execve -- need to be inline? -- Cort */
-static inline pid_t wait(int * wait_stat) 
+static __inline__ pid_t wait(int * wait_stat) 
 {
 	return waitpid(-1,wait_stat,0);
 }
 
-#endif
+/*
+   This is the mechanism for creating a new kernel thread.
+   For the time being it only behaves the same as clone().
+   It should be changed very soon to work properly and cleanly.  This
+   gets us going for now, though.
+     -- Cort
+ */
+static __inline__ long kernel_thread(int (*fn)(void *), void * arg, unsigned long flags)
+{
+  long retval;
+  __asm__  (
+	"li 0, 120 \n\t"        /* __NR_clone */
+	"li 3, %5 \n\t"         /* load flags as arg to clone */
+	/*"mr 1,7 \n\t"*/		/* save kernel stack */
+	"sc \n\t"		/* syscall */
+	/*"cmp 0,1,7 \n\t"*/	/* if kernel stack changes -- child */
+	"cmpi	0,3,0 \n\t"
+	"bne 1f \n\t"		/* return if parent */
+	/* this is in child */
+	"li 3, %3 \n\t"		/* child -- load args and call fn */
+	"mtlr %4 \n\t"		
+	"blrl \n\t"
+	"li 0, %2 \n\t"		/* exit after child exits */
+        "li 3, 0 \n\t"
+	"sc \n\t"
+	/* parent */
+	"1: \n\t"
+	:"=3" (retval)
+	:"i" (__NR_clone), "i" (__NR_exit),
+	 "r" (arg), "r" (fn), "g" (CLONE_VM|flags) 
+	:"cc", "1", "0", "3", "7", "31", "memory" );
+  return retval;
+}
+
+
+#endif /* __KERNEL_SYSCALLS__ */
 
 #endif /* _ASM_PPC_UNISTD_H_ */
-
-
