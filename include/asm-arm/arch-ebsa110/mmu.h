@@ -13,7 +13,14 @@
 /*
  * On ebsa, the dram is contiguous
  */
+#define __virt_to_phys__is_a_macro
 #define __virt_to_phys(vpage) ((vpage) - PAGE_OFFSET)
+#define __phys_to_virt__is_a_macro
 #define __phys_to_virt(ppage) ((ppage) + PAGE_OFFSET)
+
+#define __virt_to_bus__is_a_macro
+#define __virt_to_bus(x)	__virt_to_phys(x)
+#define __bus_to_virt__is_a_macro
+#define __bus_to_virt(x)	__phys_to_virt(x)
 
 #endif
