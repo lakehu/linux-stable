@@ -148,10 +148,10 @@ modules: local.h sound.o
 
 
 lowlevel/lowlevel.o: dummy
-		cd lowlevel;make
+		cd lowlevel;make CC="$(CC)" CFLAGS="$(CFLAGS)"
 
 contrib:
-		cd lowlevel;make clean;make module CFLAGS="$(CFLAGS)"
+		cd lowlevel;make clean;make module "CC=$(CC)" CFLAGS="$(CFLAGS)"
 
 ifdef USE_DEPEND
 #
