@@ -3,7 +3,7 @@
  *
  * Voice information definitions for the low level driver for the 
  * AWE32/Sound Blaster 32 wave table synth.
- *   version 0.4.2; Sep. 1, 1997
+ *   version 0.4.2c; Oct. 7, 1997
  *
  * Copyright (C) 1996,1997 Takashi Iwai
  *
@@ -419,16 +419,17 @@ enum {
 /* 0*/	AWE_MD_EXCLUSIVE_OFF,	/* obsolete */
 /* 1*/	AWE_MD_EXCLUSIVE_ON,	/* obsolete */
 /* 2*/	AWE_MD_VERSION,		/* read only */
-/* 3*/	AWE_MD_EXCLUSIVE_SOUND,	/* 0/1: (default=1) */
+/* 3*/	AWE_MD_EXCLUSIVE_SOUND,	/* ignored */
 /* 4*/	AWE_MD_REALTIME_PAN,	/* 0/1: do realtime pan change (default=1) */
-/* 5*/	AWE_MD_GUS_BANK,	/* bank number (default=0) */
+/* 5*/	AWE_MD_GUS_BANK,	/* bank number for GUS patches (default=0) */
 /* 6*/	AWE_MD_KEEP_EFFECT,	/* 0/1: keep effect values, (default=0) */
 /* 7*/	AWE_MD_ZERO_ATTEN,	/* attenuation of max volume (default=32) */
 /* 8*/	AWE_MD_CHN_PRIOR,	/* 0/1: set MIDI channel priority mode (default=1) */
-/* 9*/	AWE_MD_MOD_SENSE,	/* integer: modwheel sensitivity */
-/*10*/	AWE_MD_DEF_PRESET,	/* integer: default preset number */
-/*11*/	AWE_MD_DEF_BANK,	/* integer: default bank number */
-/*12*/	AWE_MD_DEF_DRUM,	/* integer: default drumset number */
+/* 9*/	AWE_MD_MOD_SENSE,	/* integer: modwheel sensitivity (def=18) */
+/*10*/	AWE_MD_DEF_PRESET,	/* integer: default preset number (def=0) */
+/*11*/	AWE_MD_DEF_BANK,	/* integer: default bank number (def=0) */
+/*12*/	AWE_MD_DEF_DRUM,	/* integer: default drumset number (def=0) */
+/*13*/	AWE_MD_TOGGLE_DRUM_BANK, /* 0/1: toggle drum flag with bank# (def=0) */
 	AWE_MD_END,
 };
 
