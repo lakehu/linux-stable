@@ -73,7 +73,7 @@
 */
 
 /*
-**	March 6 1999, version 3.1h
+**	March 7 1999, version 3.2
 **
 **	Supported SCSI-II features:
 **	    Synchronous negotiation
@@ -97,6 +97,11 @@
 **		Module
 **		Shared IRQ (since linux-1.3.72)
 */
+
+/*
+**	Name and version of the driver
+*/
+#define SCSI_NCR_DRIVER_NAME	"ncr53c8xx - version 3.2"
 
 #define SCSI_NCR_DEBUG_FLAGS	(0)
 
@@ -717,12 +722,12 @@ static Scsi_Host_Template	*the_template	= NULL;
 **	/proc directory entry and proc_info function
 */
 
-struct proc_dir_entry proc_scsi_ncr53c8xx = {
+static struct proc_dir_entry proc_scsi_ncr53c8xx = {
     PROC_SCSI_NCR53C8XX, 9, "ncr53c8xx",
     S_IFDIR | S_IRUGO | S_IXUGO, 2
 };
 #ifdef SCSI_NCR_PROC_INFO_SUPPORT
-int ncr53c8xx_proc_info(char *buffer, char **start, off_t offset,
+static int ncr53c8xx_proc_info(char *buffer, char **start, off_t offset,
 			int length, int hostno, int func);
 #endif
 
@@ -732,6 +737,7 @@ int ncr53c8xx_proc_info(char *buffer, char **start, off_t offset,
 **	This structure is initialized from linux config options.
 **	It can be overridden at boot-up by the boot command line.
 */
+#define SCSI_NCR_MAX_EXCLUDES 8
 struct ncr_driver_setup {
 	u_char	master_parity;
 	u_char	scsi_parity;
@@ -753,6 +759,9 @@ struct ncr_driver_setup {
 	u_char	diff_support;
 	u_char	irqm;
 	u_char	bus_check;
+	u_char	optimize;
+	u_char	recovery;
+	u_int	excludes[SCSI_NCR_MAX_EXCLUDES];
 	char	tag_ctrl[100];
 };
 
@@ -4672,7 +4681,11 @@ printk(KERN_INFO "ncr53c%s-%d: rev=0x%02x, base=0x%lx, io_port=0x%lx, irq=%d\n",
 
 	if (request_irq(device->slot.irq, ncr53c8xx_intr,
 			((driver_setup.irqm & 0x10) ? 0 : SA_SHIRQ) |
+#if LINUX_VERSION_CODE < LinuxVersionCode(2,2,0)
 			((driver_setup.irqm & 0x20) ? 0 : SA_INTERRUPT),
+#else
+			0,
+#endif
 			"ncr53c8xx", np)) {
 #ifdef __sparc__
 		printk(KERN_ERR "%s: request irq %s failure\n",
@@ -4831,7 +4844,7 @@ static inline void ncr_flush_done_cmds(Scsi_Cmnd *lcmd)
 **
 **==========================================================
 */
-int ncr_queue_command (ncb_p np, Scsi_Cmnd *cmd)
+static int ncr_queue_command (ncb_p np, Scsi_Cmnd *cmd)
 {
 /*	Scsi_Device        *device    = cmd->device; */
 	tcb_p tp                      = &np->target[cmd->target];
@@ -5395,7 +5408,7 @@ out:
 **
 **==========================================================
 */
-int ncr_reset_bus (ncb_p np, Scsi_Cmnd *cmd, int sync_reset)
+static int ncr_reset_bus (ncb_p np, Scsi_Cmnd *cmd, int sync_reset)
 {
 /*	Scsi_Device        *device    = cmd->device; */
 	ccb_p cp;
@@ -5965,7 +5978,7 @@ void ncr_complete (ncb_p np, ccb_p cp)
 **	This CCB has been skipped by the NCR.
 **	Queue it in the correponding unit queue.
 */
-void ncr_ccb_skipped(ncb_p np, ccb_p cp)
+static void ncr_ccb_skipped(ncb_p np, ccb_p cp)
 {
 	tcb_p tp = &np->target[cp->target];
 	lcb_p lp = tp->lp[cp->lun];
@@ -9235,6 +9248,7 @@ void ncr53c8xx_setup(char *str, int *ints)
 	int val;
 	int base;
 	int c;
+	int xi = 0;
 
 	while (cur != NULL && (pc = strchr(cur, ':')) != NULL) {
 		char *pe;
@@ -9306,6 +9320,10 @@ void ncr53c8xx_setup(char *str, int *ints)
 
 		else if	(!strncmp(cur, "safe:", 5) && val)
 			memcpy(&driver_setup, &driver_safe_setup, sizeof(driver_setup));
+		else if	(!strncmp(cur, "excl:", 5)) {
+			if (xi < SCSI_NCR_MAX_EXCLUDES)
+				driver_setup.excludes[xi++] = val;
+		}
 		else
 			printk("ncr53c8xx_setup: unexpected boot option '%.*s' ignored\n", (int)(pc-cur+1), cur);
 
@@ -9683,6 +9701,14 @@ static int ncr53c8xx_pci_init(Scsi_Host_Template *tpnt,
 	pcibios_read_config_byte(bus, device_fn, PCI_LATENCY_TIMER,
 				 &latency_timer);
 
+	/*
+	**	If user excludes this chip, donnot initialize it.
+	*/
+	for (i = 0 ; i < SCSI_NCR_MAX_EXCLUDES ; i++) {
+		if (driver_setup.excludes[i] ==
+				(io_port & PCI_BASE_ADDRESS_IO_MASK))
+			return -1;
+	}
 	/*
 	 *	Check if the chip is supported
 	 */
@@ -10166,6 +10192,14 @@ printk("ncr53c8xx_select_queue_depth: host=%d, id=%d, lun=%d, depth=%d\n",
 	np->unit, device->id, device->lun, device->queue_depth);
 #endif
 	}
+}
+
+/*
+**   Linux entry point for info() function
+*/
+const char *ncr53c8xx_info (struct Scsi_Host *host)
+{
+	return SCSI_NCR_DRIVER_NAME;
 }
 
 /*
@@ -10792,7 +10826,7 @@ static int ncr_host_info(ncb_p np, char *ptr, off_t offset, int len)
 **	- func = 1 means write (parse user control command)
 */
 
-int ncr53c8xx_proc_info(char *buffer, char **start, off_t offset,
+static int ncr53c8xx_proc_info(char *buffer, char **start, off_t offset,
 			int length, int hostno, int func)
 {
 	struct Scsi_Host *host;
