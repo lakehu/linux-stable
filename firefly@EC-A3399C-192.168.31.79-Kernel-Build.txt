@@ -1,0 +1,189 @@
+1. RK3399  CPU arm64
+
+2. Firefly kernel git: 
+
+https://github.com/FireflyTeam/kernel
+
+Latest linux-sdk for RK kernel 
+
+Refer to 
+
+https://github.com/FireflyTeam/manifests/blob/linux-sdk/rk3399/rk3399_linux_ubuntu_release.xml
+
+<project name="kernel" revision="a179e620b38958254c1f74d283a9cf853ae20813" upstream="rk3399/firefly"/>
+
+
+
+Kernel config
+
+https://github.com/FireflyTeam/kernel/blob/rk3399/firefly/arch/arm64/configs/firefly_linux_defconfig
+
+>>>>>>>
+
+[lake@lake-aliyun-sh-china linux-stable]$ ls -l arch/arm64/configs/rk*
+-rw-r--r-- 1 lake sys 10958 Mar 29 09:35 arch/arm64/configs/rk1808_linux_defconfig
+-rw-r--r-- 1 lake sys  6025 Mar 29 09:35 arch/arm64/configs/rk1808_x4_linux_defconfig
+-rw-r--r-- 1 lake sys  7622 Mar 29 09:35 arch/arm64/configs/rk3308_linux_defconfig
+-rw-r--r-- 1 lake sys 11418 Mar 29 09:35 arch/arm64/configs/rk3326_linux_defconfig
+-rw-r--r-- 1 lake sys  9174 Mar 29 09:35 arch/arm64/configs/rk3326_linux_robot_defconfig
+-rw-r--r-- 1 lake sys  4490 Mar 29 09:35 arch/arm64/configs/rk3399pro_npu_defconfig
+-rw-r--r-- 1 lake sys 11134 Mar 29 09:35 arch/arm64/configs/rk3399pro_npu_pcie_defconfig
+[lake@lake-aliyun-sh-china linux-stable]$ ls -l arch/arm64/configs/firefly*
+-rw-r--r-- 1 lake sys 16336 Mar 29 09:35 arch/arm64/configs/firefly_linux_defconfig
+-rw-r--r-- 1 lake sys 14966 Mar 29 09:35 arch/arm64/configs/firefly-roc-rk3328-pc_defconfig
+-rw-r--r-- 1 lake sys 15859 Mar 29 09:35 arch/arm64/configs/firefly_roc-rk3399-pc_defconfig 
+
+
+
+
+3. Tools for build 
+
+  3.1 CROSS_COMPILE   gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu
+
+[lake@lake-aliyun-sh-china linux-stable]$ echo $PATH
+/home/lake/opt/gcc-linaro-7.2.1-2017.11-x86_64_aarch64-linux-gnu/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/home/lake/.local/bin:/home/lake/bin
+
+
+  3.2 : Tools in kernel build 
+
+   sudo yum install  openssl-devel
+   sudo yum install   lz4
+
+
+4. Build 
+
+4.1 build kernel 
+ make ARCH=arm64  CROSS_COMPILE=aarch64-linux-gnu-      firefly_linux_defconfig 
+
+4.2 build dtb  ###
+
+### kernel with rk3399-firefly dtb 
+
+ make ARCH=arm64  CROSS_COMPILE=aarch64-linux-gnu-        rk3399-firefly-linux.img  
+
+### kernel with rk3399-firefly-aioc dtb 
+ make ARCH=arm64  CROSS_COMPILE=aarch64-linux-gnu-    rk3399-firefly-aioc.img
+
+
+[lake@lake-aliyun-sh-china linux-stable]$  make ARCH=arm64  CROSS_COMPILE=aarch64-linux-gnu-        rk3399-firefly-linux.img
+  CHK     scripts/mod/devicetable-offsets.h
+  CHK     include/config/kernel.release
+  CHK     include/generated/uapi/linux/version.h
+  CHK     include/generated/utsrelease.h
+  CHK     include/generated/bounds.h
+  CHK     include/generated/timeconst.h
+  CHK     include/generated/asm-offsets.h
+  CALL    scripts/checksyscalls.sh
+make[1]: `include/generated/vdso-offsets.h' is up to date.
+  CHK     include/generated/compile.h
+  LZ4C    arch/arm64/boot/Image.lz4
+  Image:  kernel.img is ready
+  CHK     include/config/kernel.release
+  CHK     include/generated/uapi/linux/version.h
+  CHK     include/generated/utsrelease.h
+  CHK     include/generated/bounds.h
+  CHK     include/generated/timeconst.h
+  CHK     include/generated/asm-offsets.h
+  CALL    scripts/checksyscalls.sh
+make[2]: `include/generated/vdso-offsets.h' is up to date.
+  CHK     scripts/mod/devicetable-offsets.h
+  Building modules, stage 2.
+  MODPOST 1 modules
+  CC      drivers/net/wireless/rockchip_wlan/rtl8188eu/8188eu.mod.o
+  LD [M]  drivers/net/wireless/rockchip_wlan/rtl8188eu/8188eu.ko
+  DTC     arch/arm64/boot/dts/rockchip/rk3399-firefly-linux.dtb
+Pack to resource.img successed!
+  Image:  resource.img (with rk3399-firefly-linux.dtb logo.bmp ) is ready
+  Image:  boot.img (with Image resource.img) is ready
+  Image:  zboot.img (with Image.lz4 resource.img) is ready
+[lake@lake-aliyun-sh-china linux-stable]$ ls -l *.img
+-rw-r--r-- 1 lake sys 22702080 Mar 29 14:38 boot.img
+-rw-r--r-- 1 lake sys 22466580 Mar 29 14:37 kernel.img
+-rw-r--r-- 1 lake sys   230912 Mar 29 14:38 resource.img
+-rw-r--r-- 1 lake sys 11249664 Mar 29 14:38 zboot.img
+
+
+Note:   boot.img  =  kernel.img + resource.img (DTB）
+
+
+
+For rk3399-firefly-aioc/EC-A3399C   http://www.t-firefly.com/product/eca3399cai?theme=pc
+
+[lake@lake-aliyun-sh-china linux-stable]$ make ARCH=arm64  CROSS_COMPILE=aarch64-linux-gnu-    rk3399-firefly-aioc.img
+  CHK     scripts/mod/devicetable-offsets.h
+  CHK     include/config/kernel.release
+  CHK     include/generated/uapi/linux/version.h
+  CHK     include/generated/utsrelease.h
+  CHK     include/generated/bounds.h
+  CHK     include/generated/timeconst.h
+  CHK     include/generated/asm-offsets.h
+  CALL    scripts/checksyscalls.sh
+make[1]: `include/generated/vdso-offsets.h' is up to date.
+  CHK     include/generated/compile.h
+make[1]: `arch/arm64/boot/Image.lz4' is up to date.
+  Image:  kernel.img is ready
+  CHK     include/config/kernel.release
+  CHK     include/generated/uapi/linux/version.h
+  CHK     include/generated/utsrelease.h
+  CHK     include/generated/bounds.h
+  CHK     include/generated/timeconst.h
+  CHK     include/generated/asm-offsets.h
+  CALL    scripts/checksyscalls.sh
+make[2]: `include/generated/vdso-offsets.h' is up to date.
+  CHK     scripts/mod/devicetable-offsets.h
+  Building modules, stage 2.
+  MODPOST 0 modules
+  DTC     arch/arm64/boot/dts/rockchip/rk3399-firefly-aioc.dtb
+Pack to resource.img successed!
+  Image:  resource.img (with rk3399-firefly-aioc.dtb logo.bmp ) is ready
+  Image:  boot.img (with Image resource.img) is ready
+  Image:  zboot.img (with Image.lz4 resource.img) is ready
+
+
+5. Download 
+
+
+
+Unpack official/AIO-3399C-UBUNTU18.04-GPT-20190304-1225.img 
+
+\AndroidTool_Release_v2.54\Output\Android\Image\parameter
+
+FIRMWARE_VER: 8.1
+MACHINE_MODEL: RK3399
+MACHINE_ID: 007
+MANUFACTURER: RK3399
+MAGIC: 0x5041524B
+ATAG: 0x00200800
+MACHINE: 3399
+CHECK_MASK: 0x80
+PWR_HLD: 0,0,A,0,1
+TYPE: GPT
+CMDLINE: mtdparts=rk29xxnand:0x00002000@0x00004000(uboot),0x00002000@0x00006000(trust),0x00010000@0x0000a000(boot),0x00010000@0x0002a000(backup),-@0x0005a000(rootfs:grow)
+uuid:rootfs=614e0000-0000-4b53-8000-1d28000054a9
+
+
+### Remote ssh/dd/download new boot.img  =>   mmcblk0p3       
+
+
+
+firefly@firefly:~$ partx  /dev/mmcblk0
+partx: cannot open /dev/mmcblk0: Permission denied
+firefly@firefly:~$ sudo  partx  /dev/mmcblk0
+NR  START      END  SECTORS  SIZE NAME   UUID
+ 1  16384    24575     8192    4M uboot  80690000-0000-4568-8000-5dea000057bf
+ 2  24576    32767     8192    4M trust  cd3a0000-0000-4c5e-8000-6be60000034f
+ 3  40960   106495    65536   32M boot   9f6a0000-0000-4e20-8000-6722000046d3
+ 4 172032   237567    65536   32M backup 5f590000-0000-4116-8000-0c0500007733
+ 5 368640 30535646 30167007 14.4G rootfs 614e0000-0000-4b53-8000-1d28000054a9
+firefly@firefly:~$ ls
+Desktop  Documents  Downloads  Music  Pictures  Public  Templates  Videos  boot.img  sources.list
+firefly@firefly:~$ dd if=./boot.img   of=/dev/mmcblk0
+mmcblk0       mmcblk0boot1  mmcblk0p2     mmcblk0p4     mmcblk0rpmb
+mmcblk0boot0  mmcblk0p1     mmcblk0p3     mmcblk0p5
+firefly@firefly:~$ dd if=./boot.img   of=/dev/mmcblk0p3
+dd: failed to open '/dev/mmcblk0p3': Permission denied
+firefly@firefly:~$ sudo  dd if=./boot.img   of=/dev/mmcblk0p3
+44340+0 records in
+44340+0 records out
+22702080 bytes (23 MB, 22 MiB) copied, 1.78948 s, 12.7 MB/s
+firefly@firefly:~$
