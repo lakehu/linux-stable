@@ -1,0 +1,59 @@
+
+1. RK3288  CPU armhf 32bit
+
+2. Firefly kernel git: 
+
+https://github.com/FireflyTeam/kernel
+
+Latest linux-sdk for RK kernel 
+
+Refer to 
+
+https://github.com/FireflyTeam/manifests/blob/linux-sdk/rk3288/rk3288_linux_ubuntu_release.xml
+
+<project name="kernel" revision="9f933a098512041f4105e112b81e88b0ff18b0bf" upstream="rk3288/firefly"/>
+
+
+
+Kernel config
+
+https://github.com/FireflyTeam/kernel/blob/rk3399/firefly/arch/arm/configs/firefly_linux_defconfig
+
+
+>>>>>>>
+
+
+
+
+
+ export  PATH=~/opt/gcc-linaro-7.2.1-2017.11-x86_64_arm-linux-gnueabihf/bin:$PATH
+
+
+[lake@localhost linux-stable]$ ls -l arch/arm/boot/dts/rk3288-firefly*.dtb
+-rw-rw-r--. 1 lake lake 77578 Apr  9 16:44 arch/arm/boot/dts/rk3288-firefly-aioc.dtb
+-rw-rw-r--. 1 lake lake 80432 Apr  9 16:44 arch/arm/boot/dts/rk3288-firefly-aioc-lvds.dtb
+-rw-rw-r--. 1 lake lake 77611 Apr  9 16:44 arch/arm/boot/dts/rk3288-firefly-aio.dtb
+-rw-rw-r--. 1 lake lake 80465 Apr  9 16:44 arch/arm/boot/dts/rk3288-firefly-aio-lvds.dtb
+[lake@localhost linux-stable]$ ls -l  arch/arm/configs/firefly*
+-rw-rw-r--. 1 lake lake 13475 Apr  9 12:55 arch/arm/configs/firefly_linux_defconfig
+[lake@localhost linux-stable]$
+
+
+
+[lake@localhost linux-stable]$ make ARCH=arm     CROSS_COMPILE=arm-linux-gnueabihf-   firefly_linux_defconfig
+  make ARCH=arm     CROSS_COMPILE=arm-linux-gnueabihf-    -j32
+
+
+[lake@localhost linux-stable]$ make ARCH=arm     CROSS_COMPILE=arm-linux-gnueabihf-    rk3288-firefly-aioc.img
+...........
+  Building modules, stage 2.
+  MODPOST 1 modules
+  CC      drivers/i2c/i2c-stub.mod.o
+  LD [M]  drivers/i2c/i2c-stub.ko
+make[1]: `arch/arm/boot/dts/rk3288-firefly-aioc.dtb' is up to date.
+Pack to resource.img successed!
+  Image:  resource.img (with rk3288-firefly-aioc.dtb logo.bmp ) is ready
+  Image:  boot.img (with Image resource.img) is ready
+  Image:  zboot.img (with zImage resource.img) is ready
+[lake@localhost linux-stable]$ sudo yum install  docker
+
