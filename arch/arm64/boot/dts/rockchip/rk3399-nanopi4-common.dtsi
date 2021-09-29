@@ -548,7 +548,7 @@
 };
 
 &edp {
-	status = "okay";
+	status = "disabled";
 	force-hpd;
 	/delete-property/ pinctrl-0;
 
