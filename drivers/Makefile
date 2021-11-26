@@ -6,6 +6,7 @@
 # Rewritten to use lists instead of if-statements.
 #
 
+obj-$(CONFIG_HELLO_WORLD)	+= helloworld/
 obj-y				+= irqchip/
 obj-y				+= bus/
 
