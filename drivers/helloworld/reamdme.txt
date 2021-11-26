@@ -1,0 +1,14 @@
+
+1. Build into kernel instead of Module
+
+-CONFIG_HELLO_WORLD=m
++CONFIG_HELLO_WORLD=y
+
+
+2. Try to run 
+
+ qemu-system-aarch64    -device VGA     -machine virt -cpu cortex-a57   -m 1024M  -kernel  arch/arm64/boot/Image   -initrd ../../yocto/qemu-aarch64-defconfig/initram-root.cpio.gz     -append "console=ttyAMA0  root=/dev/ram  rootwait rw earlycon   rdinit=/sbin/init"     -net nic     -net user     -serial stdio
+
+3. See module print inside dmesg
+
+[    3.641343] MyModule Hello world!
