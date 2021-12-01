@@ -1,0 +1,43 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",    
+    "configurations": [        
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",  //attch will use pid, do not use it. 
+            "program": "${workspaceFolder}/vmlinux", 
+            "args": [],
+            "stopAtEntry": true,   
+            "cwd": "${workspaceRoot}",
+            "environment": [],
+            "externalConsole": false,       ///  false/Mandatory for gdb debugging!!!
+
+            "logging": {/////  added manually for log
+                "moduleLoad": true,
+                //"trace": true,
+                "engineLogging": true,
+                "programOutput": true,
+                "exceptions": true,
+                //"traceResponse": true
+            },
+            "MIMode": "gdb", 
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true,
+                    //"set follow-fork-mode":"child"
+                },
+            ],
+            ///////////"preLaunchTask": "Build and run",   ///start gdbserver in backgroud 
+            ///"preLaunchTask": "build",
+            "miDebuggerPath": "/home/lhu3/extra/source/tmp/bin/aarch64-linux-gnu-gdb",
+            "miDebuggerServerAddress": "localhost:41234",
+            "targetArchitecture": "arm",
+            ///"sourceFileMap": {"./":"${workspaceFolder}"}
+            }
+    ]
+}
