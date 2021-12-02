@@ -24,16 +24,24 @@
                 //"traceResponse": true
             },
             "MIMode": "gdb", 
-            "setupCommands": [
+            "setupCommands": [                
                 {
+                    "text": "dir .",
+                    "ignoreFailures": false
+                  },
+                  {
+                    "text": "add-auto-load-safe-path ./",
+                    "ignoreFailures": false
+                  },
+                  {
                     "description": "Enable pretty-printing for gdb",
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true,
                     //"set follow-fork-mode":"child"
-                },
+                }        
             ],
             ///////////"preLaunchTask": "Build and run",   ///start gdbserver in backgroud 
-            ///"preLaunchTask": "build",
+            "preLaunchTask": "run",
             "miDebuggerPath": "/home/lhu3/extra/source/tmp/bin/aarch64-linux-gnu-gdb",
             "miDebuggerServerAddress": "localhost:41234",
             "targetArchitecture": "arm",
