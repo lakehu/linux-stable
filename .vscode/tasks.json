@@ -30,8 +30,7 @@
         },
         {
             "type": "shell", 
-            "label": "run",
-            //"command": "${workspaceFolder}/.vscode/myprepare.sh",
+            "label": "run",            
             //Add "-d int,guest_errors" to qemu to generate info log if problemMatcher can't match empty output
             "command": " echo Start MyQemuAarch64; LD_LIBRARY_PATH=${env:HOME}/usr/lib:${env:HOME}/usr/lib64   ${env:HOME}/usr/bin/qemu-system-aarch64  -nographic -device VGA     -machine virt -cpu cortex-a57   -m 1024M  -kernel  arch/arm64/boot/Image   -initrd ${env:HOME}/extra/source/yocto/qemu-aarch64-defconfig/initram-root.cpio.gz     -append   \"console=ttyAMA0  root=/dev/ram  rootwait rw earlycon   rdinit=/sbin/init\"     -net nic -net user -serial mon:stdio    -S    -gdb tcp::41234   ",
             "args": [                
