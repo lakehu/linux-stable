@@ -34,6 +34,14 @@
                     "ignoreFailures": false
                   },
                   {
+                    "description": "Set sysroot ",
+                    "text": "set sysroot ./"
+               },
+               {
+                    "description": "Set solib",
+                    "text": "set solib-search-path ./"
+               },
+                  {
                     "description": "Enable pretty-printing for gdb",
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": true,
@@ -42,10 +50,11 @@
             ],
             ///////////"preLaunchTask": "Build and run",   ///start gdbserver in backgroud 
             "preLaunchTask": "run",
-            "miDebuggerPath": "/home/lhu3/extra/source/tmp/bin/aarch64-linux-gnu-gdb",
-            "miDebuggerServerAddress": "localhost:41234",
+            /// Try NXP/gcc-9.2.0-Xarmv8-linux or aarch64-gcc7/Ubuntu18 with gdb10.2 
+            "miDebuggerPath": "${env:HOME}/usr/bin/aarch64-linux-gnu-gdb",
             "targetArchitecture": "arm",
-            ///"sourceFileMap": {"./":"${workspaceFolder}"}
+            "miDebuggerServerAddress": "localhost:41234",
+            ////"sourceFileMap": {"./":"${workspaceFolder}"}
             }
     ]
 }
