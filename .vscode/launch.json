@@ -50,8 +50,8 @@
             ],
             ///////////"preLaunchTask": "Build and run",   ///start gdbserver in backgroud 
             "preLaunchTask": "run",
-            /// Try NXP/gcc-9.2.0-Xarmv8-linux or aarch64-gcc7/Ubuntu18 with gdb10.2 
-            "miDebuggerPath": "${env:HOME}/usr/bin/aarch64-linux-gnu-gdb",
+            /// Try Ubuntu20 with gdb9/gdb-multiarch 
+            "miDebuggerPath": "gdb-multiarch",
             "targetArchitecture": "arm",
             "miDebuggerServerAddress": "localhost:41234",
             ////"sourceFileMap": {"./":"${workspaceFolder}"}
