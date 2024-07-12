@@ -16,7 +16,7 @@
         {
             "type": "shell",
             "label": "build",
-            "command": "PATH=$HOME/opt/gcc-9.2.0-Xarmv8-linux/i686-linux/bin:$PATH make",
+            "command": "make",
             "args": [
                 "ARCH=arm64", "CROSS_COMPILE=aarch64-linux-gnu-","-j8"
             ],
@@ -32,7 +32,7 @@
             "type": "shell", 
             "label": "run",            
             //Add "-d int,guest_errors" to qemu to generate info log if problemMatcher can't match empty output
-            "command": " echo Start MyQemuAarch64; LD_LIBRARY_PATH=${env:HOME}/usr/lib:${env:HOME}/usr/lib64   ${env:HOME}/usr/bin/qemu-system-aarch64  -nographic -device VGA     -machine virt -cpu cortex-a57   -m 1024M  -kernel  arch/arm64/boot/Image   -initrd ${env:HOME}/extra/source/yocto/qemu-aarch64-defconfig/initram-root.cpio.gz     -append   \"console=ttyAMA0  root=/dev/ram  rootwait rw earlycon   rdinit=/sbin/init\"     -net nic -net user -serial mon:stdio    -S    -gdb tcp::41234   ",
+            "command": " echo Start MyQemuAarch64; LD_LIBRARY_PATH=${env:HOME}/usr/lib:${env:HOME}/usr/lib64   ${env:HOME}/usr/bin/qemu-system-aarch64  -nographic -device VGA     -machine virt -cpu cortex-a57   -m 1024M  -kernel  arch/arm64/boot/Image   -initrd ${env:HOME}/data/qemu/aarch64-kernel4.19-cortex-a53-Mvirt/initram-root.cpio.gz     -append   \"console=ttyAMA0  root=/dev/ram  rootwait rw earlycon   rdinit=/sbin/init\"     -net nic -net user -serial mon:stdio    -S    -gdb tcp::41234   ",
             "args": [                
                 //"41234"   // GDB server listing port on ARM Target 
             ],
