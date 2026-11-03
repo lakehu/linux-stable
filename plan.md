@@ -51,3 +51,4 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | 3.5 | kernel/Makefile: use the host toolchain and modern gcc flags | gas/gld/gar -> as/ld/ar (as with -g), same CFLAGS changes as the top Makefile (incl. -g). |
 | 3.6 | kernel/{blk_drv,chr_drv,math}/Makefile: use the host toolchain and modern gcc flags | Same change for the driver and math emulation Makefiles (archives built with ar). |
 | 3.7 | fs/Makefile: use the host toolchain and modern gcc flags | Same change for the file system Makefile. |
+| 3.8 | mm/Makefile, lib/Makefile: use the host toolchain and modern gcc flags | Same change for the memory management and library Makefiles. |

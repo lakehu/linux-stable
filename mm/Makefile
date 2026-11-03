@@ -1,9 +1,10 @@
 CC	=gcc
-CFLAGS	=-O -Wall -fstrength-reduce -fcombine-regs -fomit-frame-pointer \
-	-finline-functions -nostdinc -I../include
-AS	=gas
-AR	=gar
-LD	=gld
+CFLAGS	=-O -Wall -fstrength-reduce -fomit-frame-pointer \
+	-finline-functions -nostdinc -I../include \
+	-m32 -fno-builtin -fno-stack-protector -std=gnu89 -fleading-underscore -fno-pie -g
+AS	=as --32 -g
+AR	=ar
+LD	=ld -m elf_i386
 CPP	=gcc -E -nostdinc -I../include
 
 .c.o:

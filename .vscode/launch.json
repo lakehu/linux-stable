@@ -6,9 +6,10 @@
     // The session stops at startup_32 (boot/head.s), the first 32-bit code.
     // The boot sector and setup run before it in 16-bit real mode; to stop
     // there, break by address in the debug console, e.g. "-exec hbreak *0x7c00".
-    // Assembly files are built with "as -g", so head.s is shown with its
-    // source lines; code without line information (BIOS, boot sector, setup)
-    // is stepped by instruction (Disassembly view, or "-exec si").
+    // C and assembly files are built with -g, so head.s, main.c etc. are
+    // shown with their source lines; code without line information (BIOS,
+    // boot sector, setup) is stepped by instruction (Disassembly view, or
+    // "-exec si").
     "version": "0.2.0",
     "configurations": [
         {
