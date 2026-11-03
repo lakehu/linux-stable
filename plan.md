@@ -69,3 +69,4 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | Step | Commit | Notes |
 |---|---|---|
 | 5.1 | sched.h: _set_base/_set_limit don't clobber input %edx | Input "d" was also in the clobber list (impossible constraint for modern gcc). Save/restore %edx inside the asm instead (as oldlinux-0.11). |
+| 5.2 | string.h: input registers changed by the asm become outputs | Modern gcc rejects inputs that are also clobbered. Changed input regs become early-clobber dummy outputs tied to the inputs (numbered refs to them -> register names, g operands renumbered), __volatile__ where there are no real outputs, "memory" clobber. strtok unchanged. Checked in user space with -O2. (oldlinux-0.11 just drops the clobbers.) |
