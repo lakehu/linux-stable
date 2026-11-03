@@ -129,6 +129,21 @@ undef_root:
 root_defined:
 	mov	%ax,%cs:root_dev
 
+# Print a second message, so we can see the system has been loaded.
+# int 0x10 AH=0x13 writes ES:BP, so point es back at our own segment.
+
+	mov	%cs,%ax
+	mov	%ax,%es
+	mov	$0x03,%ah		# read cursor pos
+	xor	%bh,%bh
+	int	$0x10
+
+	mov	$22,%cx
+	mov	$0x0007,%bx		# page 0, attribute 7 (normal)
+	mov	$msg2,%bp
+	mov	$0x1301,%ax		# write string, move cursor
+	int	$0x10
+
 # after that (everyting loaded), we jump to
 # the setup-routine loaded directly after
 # the bootblock:
@@ -240,6 +255,10 @@ msg1:
 	.byte 13,10
 	.ascii "Loading system ..."
 	.byte 13,10,13,10
+
+msg2:
+	.ascii "Jumping to setup ..."
+	.byte 13,10
 
 .org 508
 root_dev:

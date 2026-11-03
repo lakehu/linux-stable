@@ -27,3 +27,4 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | 2.5 | tools/build.c: accept raw bootsect/setup binaries | Minix header checks removed. |
 | 2.6 | tools/build.c: get MAJOR/MINOR from `<sys/sysmacros.h>` | Host tool fix: modern `<linux/fs.h>` lacks MAJOR()/MINOR(). |
 | 2.7 | Makefile: build tools/build as a host program | Plain host gcc, not the kernel CFLAGS. |
+| 2.8 | boot/bootsect.s: print a message before jumping to setup | New: second BIOS int 0x10 (AH=13h) message "Jumping to setup ..." after the system is loaded (119 bytes left in the boot sector). |
