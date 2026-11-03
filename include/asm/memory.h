@@ -7,8 +7,10 @@
  */
 #define memcpy(dest,src,n) ({ \
 void * _res = dest; \
-__asm__ ("cld;rep;movsb" \
-	::"D" ((long)(_res)),"S" ((long)(src)),"c" ((long) (n)) \
-	:"di","si","cx"); \
+int d0, d1, d2; \
+__asm__ __volatile__ ("cld;rep;movsb" \
+	:"=&D" (d0),"=&S" (d1),"=&c" (d2) \
+	:"0" ((long)(_res)),"1" ((long)(src)),"2" ((long) (n)) \
+	:"memory"); \
 _res; \
 })
