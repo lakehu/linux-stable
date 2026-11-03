@@ -1,6 +1,7 @@
 *.o
 *.a
 a.out
+qemu-monitor.sock
 Image
 System.map
 tools/system

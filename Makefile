@@ -49,6 +49,13 @@ bootimage: boot/bootsect
 # sectors past its end. Enable if a full 1.44MB floppy image is needed.
 #	truncate -s $(FLOPPY_DISK_SIZE) bootimage
 
+# Boot the image in QEMU, text screen in the terminal.
+# QEMU monitor (registers, memory, quit): in a second terminal run
+#   nc -U qemu-monitor.sock
+# and type e.g. 'info registers' or 'quit'.
+run: bootimage
+	qemu-system-i386 -boot a -drive format=raw,file=bootimage,if=floppy -display curses -monitor unix:qemu-monitor.sock,server,nowait
+
 Image: boot/bootsect boot/setup tools/system tools/build
 	tools/build boot/bootsect boot/setup tools/system $(ROOT_DEV) > Image
 	sync
