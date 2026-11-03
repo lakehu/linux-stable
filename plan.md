@@ -63,3 +63,9 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | 4.4 | head.s: .align in bytes for ELF | `.align 3` (a.out: 2^3 = 8 bytes) is an error in ELF i386 as, where the number is a byte count -> `.align 8` before _idt/_gdt. The other `.align 2` still assemble and are left alone. `make run` shows "Hello from main()". |
 | 4.5 | keyboard.S: xorl %al,%al -> xorl %eax,%eax | Modern gas rejects the size mismatch. 1991 gas took the size from the 'l' suffix and the register number from %al, i.e. it assembled 'xorl %eax,%eax' - needed, as %eax is used as a 32-bit index. The 'indirect call without *' warning is left alone. (oldlinux-0.11: 'xor %al,%al', clears only %al.) |
 | **T3** | test: head.s sets up protected mode and paging and calls C code | `make run` (bootimage = bootsect + setup + head.s + minimal main.c): the 4 boot messages, then "Hello from main()" on its own line; no reset (passed). QEMU monitor: GDT 0x5cb8 (code/data 16 MB, base 0), IDT 0x54b8 (all ignore_int), CR0=0x80000013 (PE+PG), CR3=0, first 16 MB identity mapped, EIP in main(); DF still set by setup_paging (fixed in 5.12). |
+
+### Phase 5: C / inline-asm compile fixes
+
+| Step | Commit | Notes |
+|---|---|---|
+| 5.1 | sched.h: _set_base/_set_limit don't clobber input %edx | Input "d" was also in the clobber list (impossible constraint for modern gcc). Save/restore %edx inside the asm instead (as oldlinux-0.11). |
