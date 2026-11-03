@@ -4,6 +4,61 @@
  *  (C) 1991  Linus Torvalds
  */
 
+/*
+ * TEMPORARY (step 4.1): a minimal main() to test boot/head.s before the
+ * rest of the kernel can be built. It provides the three symbols head.s
+ * needs - main, printk and stack_start - and only prints a message.
+ * Remove the MINIMAL_MAIN part again once the whole kernel builds.
+ */
+#define MINIMAL_MAIN
+
+#ifdef MINIMAL_MAIN
+
+/* kernel stack used by head.s (normally defined in kernel/sched.c) */
+long user_stack [ 4096>>2 ] ;
+
+struct {
+	long * a;
+	short b;
+	} stack_start = { & user_stack [4096>>2] , 0x10 };
+
+/*
+ * Tiny printk: writes the format string as it is (no % conversions)
+ * straight to the VGA text screen, starting at the cursor position
+ * setup.s saved at 0x90000. head.s calls printk only from ignore_int.
+ */
+int printk(const char *fmt, ...)
+{
+	static int x = -1, y;
+	unsigned char *video = (unsigned char *) 0xb8000;
+	int n = 0;
+
+	if (x < 0) {
+		x = *(unsigned char *) 0x90000;		/* column */
+		y = *(unsigned char *) 0x90001;		/* row */
+	}
+	for ( ; *fmt ; fmt++, n++) {
+		if (*fmt == '\n') {
+			y++;
+		} else if (*fmt == '\r') {
+			x = 0;
+		} else {
+			video[(y*80+x)*2] = *fmt;
+			video[(y*80+x)*2+1] = 0x07;
+			x++;
+		}
+	}
+	return n;
+}
+
+void main(void)
+{
+	printk("Hello from main()\n\r");
+	for (;;) ;
+}
+
+#else /* !MINIMAL_MAIN */
+
 #define __LIBRARY__
 #include <unistd.h>
 #include <time.h>
@@ -207,3 +262,5 @@ void init(void)
 	}
 	_exit(0);	/* NOTE! _exit, not exit() */
 }
+
+#endif /* MINIMAL_MAIN */

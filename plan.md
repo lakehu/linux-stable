@@ -52,3 +52,9 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | 3.6 | kernel/{blk_drv,chr_drv,math}/Makefile: use the host toolchain and modern gcc flags | Same change for the driver and math emulation Makefiles (archives built with ar). |
 | 3.7 | fs/Makefile: use the host toolchain and modern gcc flags | Same change for the file system Makefile. |
 | 3.8 | mm/Makefile, lib/Makefile: use the host toolchain and modern gcc flags | Same change for the memory management and library Makefiles. |
+
+### Phase 4: 32-bit assembly fixes
+
+| Step | Commit | Notes |
+|---|---|---|
+| 4.1 | init/main.c: temporary minimal main() for testing head.s | TEMPORARY: `#define MINIMAL_MAIN` block in front of the untouched original: main() prints "Hello from main()", tiny VGA printk (no %), stack_start. Not linked yet. Removed once the whole kernel builds. |
