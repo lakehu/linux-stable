@@ -11,10 +11,14 @@
 #include <linux/kernel.h>
 
 #define clear_block(addr) \
-__asm__("cld\n\t" \
+do { int d0, d1; \
+__asm__ __volatile__("cld\n\t" \
 	"rep\n\t" \
 	"stosl" \
-	::"a" (0),"c" (BLOCK_SIZE/4),"D" ((long) (addr)):"cx","di")
+	:"=&c" (d0),"=&D" (d1) \
+	:"a" (0),"0" (BLOCK_SIZE/4),"1" ((long) (addr)) \
+	:"memory"); \
+} while (0)
 
 #define set_bit(nr,addr) ({\
 register int res __asm__("ax"); \
@@ -29,7 +33,7 @@ __asm__ __volatile__("btrl %2,%3\n\tsetnb %%al": \
 res;})
 
 #define find_first_zero(addr) ({ \
-int __res; \
+int __res, d0; \
 __asm__("cld\n" \
 	"1:\tlodsl\n\t" \
 	"notl %%eax\n\t" \
@@ -41,7 +45,7 @@ __asm__("cld\n" \
 	"cmpl $8192,%%ecx\n\t" \
 	"jl 1b\n" \
 	"3:" \
-	:"=c" (__res):"c" (0),"S" (addr):"ax","dx","si"); \
+	:"=c" (__res),"=&S" (d0):"0" (0),"1" (addr):"ax","dx","memory"); \
 __res;})
 
 void free_block(int dev, int block)

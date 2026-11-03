@@ -281,11 +281,14 @@ struct buffer_head * bread(int dev,int block)
 }
 
 #define COPYBLK(from,to) \
-__asm__("cld\n\t" \
+do { int d0, d1, d2; \
+__asm__ __volatile__("cld\n\t" \
 	"rep\n\t" \
 	"movsl\n\t" \
-	::"c" (BLOCK_SIZE/4),"S" (from),"D" (to) \
-	:"cx","di","si")
+	:"=&c" (d0),"=&S" (d1),"=&D" (d2) \
+	:"0" (BLOCK_SIZE/4),"1" (from),"2" (to) \
+	:"memory"); \
+} while (0)
 
 /*
  * bread_page reads four buffers into memory at the desired address. It's
