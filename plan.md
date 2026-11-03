@@ -46,3 +46,4 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 |---|---|---|
 | 3.1 | Makefile: drop Linus-only gcc flags | Remove -fcombine-regs and -mstring-insns (Linus's patched gcc 1.x; modern gcc rejects them). |
 | 3.2 | Makefile: build 32-bit freestanding code | Add -m32 (host gcc is 64-bit), -fno-builtin (strcpy/memcpy etc. not treated as gcc builtins), -fno-stack-protector (no __stack_chk_fail), -std=gnu89 (1991 C rules, e.g. extern inline), -g (line information for gdb/VS Code; raw images unchanged). |
+| 3.3 | Makefile: keep a.out symbol names (-fleading-underscore) | C symbols get a leading underscore as in 1991 a.out (main -> _main), so the assembly (_main, _printk, _stack_start, ...) stays unchanged. |
