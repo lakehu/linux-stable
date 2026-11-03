@@ -64,8 +64,7 @@ disk: Image
 	dd bs=8192 if=Image of=/dev/PS0
 
 tools/build: tools/build.c
-	$(CC) $(CFLAGS) \
-	-o tools/build tools/build.c
+	gcc -o tools/build tools/build.c
 
 boot/head.o: boot/head.s
 
