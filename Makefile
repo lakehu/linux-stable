@@ -11,7 +11,8 @@ AS	=as --32 -g
 LD	=ld
 LDFLAGS	=-m elf_i386 -Ttext 0 -e startup_32 -M
 CC	=gcc $(RAMDISK)
-CFLAGS	=-Wall -O -fstrength-reduce -fomit-frame-pointer
+CFLAGS	=-Wall -O -fstrength-reduce -fomit-frame-pointer \
+-m32 -fno-builtin -fno-stack-protector -std=gnu89 -g
 CPP	=cpp -nostdinc -Iinclude
 
 #
