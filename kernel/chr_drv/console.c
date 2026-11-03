@@ -472,10 +472,10 @@ void con_write(struct tty_struct * tty)
 						pos -= video_size_row;
 						lf();
 					}
-					__asm__ __volatile__("movb _attr,%%ah\n\t"
+					__asm__ __volatile__("movb %3,%%ah\n\t"
 						"movw %%ax,%2\n\t"
 						:"=&a" (d0)
-						:"0" (c),"m" (*(short *)pos)
+						:"0" (c),"m" (*(short *)pos),"m" (attr)
 						:"memory");
 					pos += 2;
 					x++;
