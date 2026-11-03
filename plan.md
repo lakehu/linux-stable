@@ -91,3 +91,9 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | 6.3 | init/main.c: print build stamp at boot | printk("Linux 0.11 built <date> <time> with gcc <version>") right after tty_init(), so each boot shows which kernel runs. |
 | 6.4 | gitignore: ignore the generated keyboard.s | kernel/chr_drv/keyboard.s is produced from keyboard.S by cpp during the build. |
 | **T4** | test: the real kernel boots and prints its messages | `make run` (full Image): boot messages, "Linux 0.11 built ... with gcc 9.4.0", then "harddisk I/O error / dev 0306, block 1 / Kernel panic: Unable to mount root" (no root disk yet, as expected) (passed). |
+
+### Phase 7: Small runtime fixes
+
+| Step | Commit | Notes |
+|---|---|---|
+| 7.1 | floppy.c: ignore the seek-end bit (SE) in ST0 after read/write | QEMU's floppy controller sets ST0 SE (0x20) when a transfer ends on the last sector of a cylinder and it moves on; the driver counted every ST0 bit 3-7 as an error (0xf8). Check only IC, EC, NR (0xd8). Not fixed in oldlinux-0.11 (it boots from hard disk). |

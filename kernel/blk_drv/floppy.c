@@ -252,7 +252,7 @@ static void bad_flp_intr(void)
  */
 static void rw_interrupt(void)
 {
-	if (result() != 7 || (ST0 & 0xf8) || (ST1 & 0xbf) || (ST2 & 0x73)) {
+	if (result() != 7 || (ST0 & 0xd8) || (ST1 & 0xbf) || (ST2 & 0x73)) {
 		if (ST1 & 0x02) {
 			printk("Drive %d is write protected\n\r",current_drive);
 			floppy_deselect(current_drive);
