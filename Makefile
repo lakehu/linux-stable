@@ -86,8 +86,10 @@ boot/setup: boot/setup.s
 	$(LD86) -s -o boot/setup boot/setup.o
 
 boot/bootsect:	boot/bootsect.s
-	$(AS86) -o boot/bootsect.o boot/bootsect.s
-	$(LD86) -s -o boot/bootsect boot/bootsect.o
+	$(AS) -o boot/bootsect.o boot/bootsect.s
+	$(LD) -m elf_i386 -Ttext 0 -e start -o boot/bootsect.elf boot/bootsect.o
+	objcopy -O binary -j .text boot/bootsect.elf boot/bootsect
+	rm -f boot/bootsect.elf
 
 tmp.s:	boot/bootsect.s tools/system
 	(echo -n "SYSSIZE = (";ls -l tools/system | grep system \

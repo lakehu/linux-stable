@@ -21,3 +21,4 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | Step | Commit | Notes |
 |---|---|---|
 | 2.1 | boot/bootsect.s: convert as86 syntax to GNU as (.code16) | Line-by-line translation, original comments, no behaviour change; ROOT_DEV stays 0x306. |
+| 2.2 | Makefile: assemble boot sector with as + ld + objcopy -O binary | Raw 512-byte boot/bootsect instead of as86/ld86 Minix binary. |
