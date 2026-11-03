@@ -106,6 +106,8 @@ static inline void set_origin(void)
 
 static void scrup(void)
 {
+	int d0, d1, d2;
+
 	if (video_type == VIDEO_TYPE_EGAC || video_type == VIDEO_TYPE_EGAM)
 	{
 		if (!top && bottom == video_num_lines) {
@@ -113,91 +115,99 @@ static void scrup(void)
 			pos += video_size_row;
 			scr_end += video_size_row;
 			if (scr_end > video_mem_end) {
-				__asm__("cld\n\t"
+				__asm__ __volatile__("cld\n\t"
 					"rep\n\t"
 					"movsl\n\t"
-					"movl _video_num_columns,%1\n\t"
+					"movl _video_num_columns,%%ecx\n\t"
 					"rep\n\t"
 					"stosw"
-					::"a" (video_erase_char),
-					"c" ((video_num_lines-1)*video_num_columns>>1),
-					"D" (video_mem_start),
-					"S" (origin)
-					:"cx","di","si");
+					:"=&c" (d0),"=&D" (d1),"=&S" (d2)
+					:"a" (video_erase_char),
+					"0" ((video_num_lines-1)*video_num_columns>>1),
+					"1" (video_mem_start),
+					"2" (origin)
+					:"memory");
 				scr_end -= origin-video_mem_start;
 				pos -= origin-video_mem_start;
 				origin = video_mem_start;
 			} else {
-				__asm__("cld\n\t"
+				__asm__ __volatile__("cld\n\t"
 					"rep\n\t"
 					"stosw"
-					::"a" (video_erase_char),
-					"c" (video_num_columns),
-					"D" (scr_end-video_size_row)
-					:"cx","di");
+					:"=&c" (d0),"=&D" (d1)
+					:"a" (video_erase_char),
+					"0" (video_num_columns),
+					"1" (scr_end-video_size_row)
+					:"memory");
 			}
 			set_origin();
 		} else {
-			__asm__("cld\n\t"
+			__asm__ __volatile__("cld\n\t"
 				"rep\n\t"
 				"movsl\n\t"
 				"movl _video_num_columns,%%ecx\n\t"
 				"rep\n\t"
 				"stosw"
-				::"a" (video_erase_char),
-				"c" ((bottom-top-1)*video_num_columns>>1),
-				"D" (origin+video_size_row*top),
-				"S" (origin+video_size_row*(top+1))
-				:"cx","di","si");
+				:"=&c" (d0),"=&D" (d1),"=&S" (d2)
+				:"a" (video_erase_char),
+				"0" ((bottom-top-1)*video_num_columns>>1),
+				"1" (origin+video_size_row*top),
+				"2" (origin+video_size_row*(top+1))
+				:"memory");
 		}
 	}
 	else		/* Not EGA/VGA */
 	{
-		__asm__("cld\n\t"
+		__asm__ __volatile__("cld\n\t"
 			"rep\n\t"
 			"movsl\n\t"
 			"movl _video_num_columns,%%ecx\n\t"
 			"rep\n\t"
 			"stosw"
-			::"a" (video_erase_char),
-			"c" ((bottom-top-1)*video_num_columns>>1),
-			"D" (origin+video_size_row*top),
-			"S" (origin+video_size_row*(top+1))
-			:"cx","di","si");
+			:"=&c" (d0),"=&D" (d1),"=&S" (d2)
+			:"a" (video_erase_char),
+			"0" ((bottom-top-1)*video_num_columns>>1),
+			"1" (origin+video_size_row*top),
+			"2" (origin+video_size_row*(top+1))
+			:"memory");
 	}
 }
 
 static void scrdown(void)
 {
+	int d0, d1, d2, d3;
+
 	if (video_type == VIDEO_TYPE_EGAC || video_type == VIDEO_TYPE_EGAM)
 	{
-		__asm__("std\n\t"
+		__asm__ __volatile__("std\n\t"
 			"rep\n\t"
 			"movsl\n\t"
 			"addl $2,%%edi\n\t"	/* %edi has been decremented by 4 */
 			"movl _video_num_columns,%%ecx\n\t"
 			"rep\n\t"
 			"stosw"
-			::"a" (video_erase_char),
-			"c" ((bottom-top-1)*video_num_columns>>1),
-			"D" (origin+video_size_row*bottom-4),
-			"S" (origin+video_size_row*(bottom-1)-4)
-			:"ax","cx","di","si");
+			:"=&a" (d0),"=&c" (d1),"=&D" (d2),"=&S" (d3)
+			:"0" (video_erase_char),
+			"1" ((bottom-top-1)*video_num_columns>>1),
+			"2" (origin+video_size_row*bottom-4),
+			"3" (origin+video_size_row*(bottom-1)-4)
+			:"memory");
 	}
 	else		/* Not EGA/VGA */
 	{
-		__asm__("std\n\t"
+		__asm__ __volatile__("std\n\t"
 			"rep\n\t"
 			"movsl\n\t"
 			"addl $2,%%edi\n\t"	/* %edi has been decremented by 4 */
 			"movl _video_num_columns,%%ecx\n\t"
 			"rep\n\t"
 			"stosw"
-			::"a" (video_erase_char),
-			"c" ((bottom-top-1)*video_num_columns>>1),
-			"D" (origin+video_size_row*bottom-4),
-			"S" (origin+video_size_row*(bottom-1)-4)
-			:"ax","cx","di","si");
+			:"=&a" (d0),"=&c" (d1),"=&D" (d2),"=&S" (d3)
+			:"0" (video_erase_char),
+			"1" ((bottom-top-1)*video_num_columns>>1),
+			"2" (origin+video_size_row*bottom-4),
+			"3" (origin+video_size_row*(bottom-1)-4)
+			:"memory");
 	}
 }
 
@@ -240,6 +250,7 @@ static void csi_J(int par)
 {
 	long count __asm__("cx");
 	long start __asm__("di");
+	int d0, d1;
 
 	switch (par) {
 		case 0:	/* erase from cursor to end of display */
@@ -257,18 +268,20 @@ static void csi_J(int par)
 		default:
 			return;
 	}
-	__asm__("cld\n\t"
+	__asm__ __volatile__("cld\n\t"
 		"rep\n\t"
 		"stosw\n\t"
-		::"c" (count),
-		"D" (start),"a" (video_erase_char)
-		:"cx","di");
+		:"=&c" (d0),"=&D" (d1)
+		:"0" (count),
+		"1" (start),"a" (video_erase_char)
+		:"memory");
 }
 
 static void csi_K(int par)
 {
 	long count __asm__("cx");
 	long start __asm__("di");
+	int d0, d1;
 
 	switch (par) {
 		case 0:	/* erase from cursor to end of line */
@@ -288,12 +301,13 @@ static void csi_K(int par)
 		default:
 			return;
 	}
-	__asm__("cld\n\t"
+	__asm__ __volatile__("cld\n\t"
 		"rep\n\t"
 		"stosw\n\t"
-		::"c" (count),
-		"D" (start),"a" (video_erase_char)
-		:"cx","di");
+		:"=&c" (d0),"=&D" (d1)
+		:"0" (count),
+		"1" (start),"a" (video_erase_char)
+		:"memory");
 }
 
 void csi_m(void)
@@ -444,7 +458,7 @@ static void restore_cur(void)
 
 void con_write(struct tty_struct * tty)
 {
-	int nr;
+	int nr, d0;
 	char c;
 
 	nr = CHARS(tty->write_q);
@@ -458,10 +472,11 @@ void con_write(struct tty_struct * tty)
 						pos -= video_size_row;
 						lf();
 					}
-					__asm__("movb _attr,%%ah\n\t"
-						"movw %%ax,%1\n\t"
-						::"a" (c),"m" (*(short *)pos)
-						:"ax");
+					__asm__ __volatile__("movb _attr,%%ah\n\t"
+						"movw %%ax,%2\n\t"
+						:"=&a" (d0)
+						:"0" (c),"m" (*(short *)pos)
+						:"memory");
 					pos += 2;
 					x++;
 				} else if (c==27)
