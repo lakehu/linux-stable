@@ -24,3 +24,4 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | 2.2 | Makefile: assemble boot sector with as + ld + objcopy -O binary | Raw 512-byte boot/bootsect instead of as86/ld86 Minix binary. |
 | 2.3 | Makefile: build a boot-sector-only floppy image by default | `make` builds `bootimage` = boot/bootsect only (512 bytes). Padding to `FLOPPY_DISK_SIZE` (1474560 = 1.44 MB) is left commented out until later steps need it. `all: Image` returns once setup and system build. |
 | 2.4 | Makefile: add 'run' target to boot bootimage in QEMU | `make run`: `qemu-system-i386 -boot a -drive format=raw,file=bootimage,if=floppy -display curses` plus `-monitor unix:qemu-monitor.sock,server,nowait`: QEMU monitor (and `quit`) from a second terminal with `nc -U qemu-monitor.sock`. |
+| 2.5 | tools/build.c: accept raw bootsect/setup binaries | Minix header checks removed. |
