@@ -31,6 +31,14 @@ begbss:
 .globl start
 start:
 
+# Say we got here. print_msg uses es:bp, so point es at our own segment.
+
+	mov	%cs,%ax
+	mov	%ax,%es
+	mov	$msg_setup,%bp
+	mov	$25,%cx
+	call	print_msg
+
 # ok, the read went well so we get current cursor position and save it for
 # posterity.
 
@@ -202,6 +210,24 @@ empty_8042:
 	test	$2,%al		# is input buffer full?
 	jnz	empty_8042	# yes - loop
 	ret
+
+# Print a string with the BIOS, at the cursor position, moving the cursor.
+# in: es:bp - string, cx - length. Only usable while the BIOS is still
+# around, ie before the system is moved down over the interrupt vectors.
+print_msg:
+	push	%cx
+	mov	$0x03,%ah		# read cursor pos
+	xor	%bh,%bh
+	int	$0x10
+	pop	%cx
+	mov	$0x0007,%bx		# page 0, attribute 7 (normal)
+	mov	$0x1301,%ax		# write string, move cursor
+	int	$0x10
+	ret
+
+msg_setup:
+	.ascii "Now we are in setup ..."
+	.byte 13,10
 
 gdt:
 	.word	0,0,0,0		# dummy
