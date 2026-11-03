@@ -58,3 +58,4 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | Step | Commit | Notes |
 |---|---|---|
 | 4.1 | init/main.c: temporary minimal main() for testing head.s | TEMPORARY: `#define MINIMAL_MAIN` block in front of the untouched original: main() prints "Hello from main()", tiny VGA printk (no %), stack_start. Not linked yet. Removed once the whole kernel builds. |
+| 4.2 | Makefile: link init/main.o into the bootimage system | System = head.o + main.o. With the T2 stub still in head.s, `make run` still shows "PM OK". |

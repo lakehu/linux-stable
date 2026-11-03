@@ -42,8 +42,9 @@ all:	bootimage
 FLOPPY_DISK_SIZE = 1474560
 
 # Floppy image with the boot sector, setup (sectors 2-5) and a minimal
-# system (sector 6 on) made of boot/head.s only. Used until the whole
-# system can be built; then 'all' builds Image again.
+# system (sector 6 on) made of boot/head.s and the temporary minimal
+# init/main.c only. Used until the whole system can be built; then 'all'
+# builds Image again.
 bootimage: boot/bootsect boot/setup tools/system.min
 	objcopy -O binary -R .note -R .comment tools/system.min tools/kernel.min
 	cp boot/bootsect bootimage
@@ -54,8 +55,8 @@ bootimage: boot/bootsect boot/setup tools/system.min
 # sectors past its end. Enable if a full 1.44MB floppy image is needed.
 #	truncate -s $(FLOPPY_DISK_SIZE) bootimage
 
-tools/system.min: boot/head.o
-	$(LD) $(LDFLAGS) boot/head.o -o tools/system.min > System.map
+tools/system.min: boot/head.o init/main.o
+	$(LD) $(LDFLAGS) boot/head.o init/main.o -o tools/system.min > System.map
 
 # Boot the image in QEMU, text screen in the terminal.
 # QEMU monitor (registers, memory, quit): in a second terminal run
