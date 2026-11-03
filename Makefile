@@ -99,8 +99,10 @@ lib/lib.a:
 	(cd lib; make)
 
 boot/setup: boot/setup.s
-	$(AS86) -o boot/setup.o boot/setup.s
-	$(LD86) -s -o boot/setup boot/setup.o
+	$(AS) -o boot/setup.o boot/setup.s
+	$(LD) -m elf_i386 -Ttext 0 -e start -o boot/setup.elf boot/setup.o
+	objcopy -O binary -j .text boot/setup.elf boot/setup
+	rm -f boot/setup.elf
 
 boot/bootsect:	boot/bootsect.s
 	$(AS) -o boot/bootsect.o boot/bootsect.s
