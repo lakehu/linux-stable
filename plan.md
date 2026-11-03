@@ -29,3 +29,4 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | 2.7 | Makefile: build tools/build as a host program | Plain host gcc, not the kernel CFLAGS. |
 | 2.8 | boot/bootsect.s: print a message before jumping to setup | New: second BIOS int 0x10 (AH=13h) message "Jumping to setup ..." after the system is loaded (119 bytes left in the boot sector). |
 | **T1** | test: boot sector prints its messages | `make run` (bootimage = bootsect only): "Loading system ..." and "Jumping to setup ..." (passed). |
+| 2.9 | boot/setup.s: convert as86 syntax to GNU as (.code16) | Line-by-line translation, original comments; keeps 8042 A20 and lmsw (oldlinux switched to port 0x92 and cr0, and added lab debug prints). |
