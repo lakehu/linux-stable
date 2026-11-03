@@ -80,14 +80,23 @@ tools/hello: tools/hello.s tools/mkaout.py
 	python3 tools/mkaout.py tools/hello.bin tools/hello
 	rm -f tools/hello.o tools/hello.elf tools/hello.bin
 
-# Tiny root file system (MINIX v1, 256 blocks): only what init() needs.
-ROOTFS_BLOCKS = 256
-rootfs.img: tools/minixfs.py tools/hello
+# Tiny root file system (MINIX v1, 512 blocks = the RAM disk size): what
+# init() needs, a shell, ls and cat. The programs in rootfs-bin/ are 0.11
+# a.out binaries (bash as sh), extracted once with 'tools/minixfs.py
+# extract' from the 0.11 hard disk image of oldlinux-0.11 (yuan-xy/Linux-0.11,
+# hdc-0.11.img, partition 1 at byte offset 512). tools/hello stays in as
+# /bin/hello.
+ROOTFS_BLOCKS = 512
+ROOTFS_PROGS = rootfs-bin/sh rootfs-bin/ls rootfs-bin/cat
+rootfs.img: tools/minixfs.py tools/hello $(ROOTFS_PROGS)
 	python3 tools/minixfs.py rootfs.img $(ROOTFS_BLOCKS) \
-		dir:/bin dir:/dev dir:/etc \
+		dir:/bin dir:/dev dir:/etc dir:/usr dir:/usr/bin dir:/usr/root \
 		chr:/dev/tty0=4,0 \
-		"text:/etc/rc=# empty, opened by init as stdin of the first /bin/sh\n" \
-		file:/bin/sh=tools/hello
+		"text:/etc/rc=# opened by init as stdin of the first /bin/sh\n" \
+		file:/bin/sh=rootfs-bin/sh \
+		file:/bin/hello=tools/hello \
+		file:/usr/bin/ls=rootfs-bin/ls \
+		file:/usr/bin/cat=rootfs-bin/cat
 
 tools/build: tools/build.c
 	gcc -o tools/build tools/build.c
