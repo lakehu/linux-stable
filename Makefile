@@ -77,6 +77,15 @@ tools/hello: tools/hello.s tools/mkaout.py
 	python3 tools/mkaout.py tools/hello.bin tools/hello
 	rm -f tools/hello.o tools/hello.elf tools/hello.bin
 
+# Tiny root file system (MINIX v1, 256 blocks): only what init() needs.
+ROOTFS_BLOCKS = 256
+rootfs.img: tools/minixfs.py tools/hello
+	python3 tools/minixfs.py rootfs.img $(ROOTFS_BLOCKS) \
+		dir:/bin dir:/dev dir:/etc \
+		chr:/dev/tty0=4,0 \
+		"text:/etc/rc=# empty, opened by init as stdin of the first /bin/sh\n" \
+		file:/bin/sh=tools/hello
+
 tools/build: tools/build.c
 	gcc -o tools/build tools/build.c
 
@@ -130,7 +139,7 @@ tmp.s:	boot/bootsect.s tools/system
 	cat boot/bootsect.s >> tmp.s
 
 clean:
-	rm -f Image System.map tmp_make core boot/bootsect boot/setup
+	rm -f Image rootfs.img System.map tmp_make core boot/bootsect boot/setup
 	rm -f init/*.o tools/system tools/build tools/hello boot/*.o
 	(cd mm;make clean)
 	(cd fs;make clean)
