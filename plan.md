@@ -98,3 +98,9 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 |---|---|---|
 | 7.1 | floppy.c: ignore the seek-end bit (SE) in ST0 after read/write | QEMU's floppy controller sets ST0 SE (0x20) when a transfer ends on the last sector of a cylinder and it moves on; the driver counted every ST0 bit 3-7 as an error (0xf8). Check only IC, EC, NR (0xd8). Not fixed in oldlinux-0.11 (it boots from hard disk). |
 | 7.2 | config.h: US keyboard layout | KBD_US instead of the default KBD_FINNISH: with the Finnish map the '/' key of a PC/US keyboard gives '-' (typing 'ls /bin' ran 'ls -bin'). |
+
+### Phase 8: Tiny rootfs
+
+| Step | Commit | Notes |
+|---|---|---|
+| 8.1 | tools/minixfs.py: build MINIX v1 file system images | Python, no root/loop mount: dirs, files (direct + single indirect zones), text files, char devices. Checked with util-linux fsck.minix (no errors). |
