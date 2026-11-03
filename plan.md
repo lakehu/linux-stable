@@ -104,3 +104,4 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | Step | Commit | Notes |
 |---|---|---|
 | 8.1 | tools/minixfs.py: build MINIX v1 file system images | Python, no root/loop mount: dirs, files (direct + single indirect zones), text files, char devices. Checked with util-linux fsck.minix (no errors). |
+| 8.2 | tools/hello.s: first user program (a.out) for the tiny rootfs | write(1, "hello from userspace") via int $0x80, then pause() forever. tools/mkaout.py wraps the raw binary into an a.out ZMAGIC file (magic 0413, text at offset 1024). `make tools/hello`. |

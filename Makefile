@@ -69,6 +69,14 @@ Image: boot/bootsect boot/setup tools/system tools/build
 disk: Image
 	dd bs=8192 if=Image of=/dev/PS0
 
+# First user program for the tiny root file system (an a.out ZMAGIC file)
+tools/hello: tools/hello.s tools/mkaout.py
+	$(AS) -o tools/hello.o tools/hello.s
+	$(LD) -m elf_i386 -Ttext 0 -e _start -o tools/hello.elf tools/hello.o
+	objcopy -O binary tools/hello.elf tools/hello.bin
+	python3 tools/mkaout.py tools/hello.bin tools/hello
+	rm -f tools/hello.o tools/hello.elf tools/hello.bin
+
 tools/build: tools/build.c
 	gcc -o tools/build tools/build.c
 
@@ -123,7 +131,7 @@ tmp.s:	boot/bootsect.s tools/system
 
 clean:
 	rm -f Image System.map tmp_make core boot/bootsect boot/setup
-	rm -f init/*.o tools/system tools/build boot/*.o
+	rm -f init/*.o tools/system tools/build tools/hello boot/*.o
 	(cd mm;make clean)
 	(cd fs;make clean)
 	(cd kernel;make clean)
