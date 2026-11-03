@@ -1,0 +1,63 @@
+{
+    // Tasks for debugging Linux 0.11 in QEMU (used by .vscode/launch.json).
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "kill run qemu",
+            "type": "shell",
+            "command": "killall qemu-system-i386 >/dev/null 2>&1; echo kill done; exit 0"
+        },
+        {
+            "type": "shell",
+            "label": "build",
+            "command": "make",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "type": "shell",
+            "label": "run",
+            // QEMU with gdb server on port 41234, CPU stopped (see 'debug' in the Makefile)
+            "command": "make debug",
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "isBackground": true,
+            "dependsOn": ["kill run qemu"],
+            "presentation": {
+                "echo": true,
+                "clear": true
+            },
+            "problemMatcher": [
+                {
+                    "pattern": [
+                        {
+                            "regexp": ".",
+                            "file": 1,
+                            "location": 2,
+                            "message": 3
+                        }
+                    ],
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": ".",
+                        "endsPattern": "."
+                    }
+                }
+            ]
+        },
+        {
+            "label": "Build and run",
+            "dependsOrder": "sequence",
+            "dependsOn": [
+                "build",
+                "run"
+            ]
+        }
+    ]
+}

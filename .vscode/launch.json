@@ -1,0 +1,56 @@
+{
+    // Debug Linux 0.11 in QEMU with VS Code and the C/C++ extension (cppdbg).
+    // The "run" task (tasks.json) starts "make debug": QEMU with its gdb
+    // server on port 41234 and the CPU stopped (-S); gdb connects to it and
+    // loads the symbols of the linked kernel.
+    // The session stops at startup_32 (boot/head.s), the first 32-bit code.
+    // The boot sector and setup run before it in 16-bit real mode; to stop
+    // there, break by address in the debug console, e.g. "-exec hbreak *0x7c00".
+    // Assembly files are built with "as -g", so head.s is shown with its
+    // source lines; code without line information (BIOS, boot sector, setup)
+    // is stepped by instruction (Disassembly view, or "-exec si").
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Linux 0.11 in QEMU",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/tools/system.min",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "gdb",
+            "miDebuggerArgs": "-nx",
+            "targetArchitecture": "x86",
+            "miDebuggerServerAddress": "localhost:41234",
+            "setupCommands": [
+                {
+                    "text": "dir .",
+                    "ignoreFailures": false
+                },
+                {
+                    "description": "32-bit kernel; QEMU reports i386 registers",
+                    "text": "set architecture i386",
+                    "ignoreFailures": false
+                },
+                {
+                    "text": "set disassemble-next-line on",
+                    "ignoreFailures": true
+                }
+            ],
+            // after connecting, stop at the first 32-bit code: startup_32 in
+            // boot/head.s at address 0 (hardware breakpoint, because setup
+            // only moves the system down to address 0 later)
+            "postRemoteConnectCommands": [
+                {
+                    "text": "hbreak startup_32",
+                    "ignoreFailures": false
+                }
+            ],
+            "preLaunchTask": "run"
+        }
+    ]
+}

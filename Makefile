@@ -7,7 +7,7 @@ RAMDISK = #-DRAMDISK=512
 AS86	=as86 -0 -a
 LD86	=ld86 -0
 
-AS	=as --32
+AS	=as --32 -g
 LD	=ld
 LDFLAGS	=-m elf_i386 -Ttext 0 -e startup_32 -M
 CC	=gcc $(RAMDISK)
@@ -63,6 +63,13 @@ tools/system.min: boot/head.o
 # and type e.g. 'info registers' or 'quit'.
 run: bootimage
 	qemu-system-i386 -boot a -drive format=raw,file=bootimage,if=floppy -display curses -monitor unix:qemu-monitor.sock,server,nowait
+
+# Like 'run', but for a debugger: QEMU starts its gdb server on TCP port 41234
+# (-gdb tcp::41234) and stops the CPU before the first instruction (-S). Connect with
+#   gdb -ex 'target remote :41234' tools/system.min
+# or with VS Code (.vscode/launch.json, "Run and Debug": Linux 0.11).
+debug: bootimage
+	qemu-system-i386 -boot a -drive format=raw,file=bootimage,if=floppy -display curses -monitor unix:qemu-monitor.sock,server,nowait -S -gdb tcp::41234
 
 Image: boot/bootsect boot/setup tools/system tools/build
 	tools/build boot/bootsect boot/setup tools/system $(ROOT_DEV) > Image
