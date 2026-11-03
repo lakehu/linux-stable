@@ -73,3 +73,4 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | 5.3 | mm/memory.c: input registers changed by the asm become outputs | copy_page (S/D/c) and get_free_page (c/D): early-clobber dummy outputs instead of clobbered inputs; get_free_page's %2 (LOW_MEM) becomes %4. |
 | 5.4 | fs: input registers changed by the asm become outputs | buffer.c COPYBLK, bitmap.c clear_block and find_first_zero, namei.c match(): clobbered inputs -> early-clobber dummy outputs (+ __volatile__/"memory" where needed). |
 | 5.5 | fs/exec.c: no cast as lvalue | `pag = (char *) page[n] = (unsigned long *) get_free_page()` assigned to a cast (gcc 1.x extension): store into page[n], then cast the stored value for pag. |
+| 5.6 | blk_drv: input registers changed by the asm become outputs | floppy.c copy_buffer (c/S/D) and hd.c port_read (D/c), port_write (S/c): early-clobber dummy outputs, do { } while (0), __volatile__, "memory". |

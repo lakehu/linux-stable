@@ -153,9 +153,12 @@ repeat:
 }
 
 #define copy_buffer(from,to) \
-__asm__("cld ; rep ; movsl" \
-	::"c" (BLOCK_SIZE/4),"S" ((long)(from)),"D" ((long)(to)) \
-	:"cx","di","si")
+do { int d0, d1, d2; \
+__asm__ __volatile__("cld ; rep ; movsl" \
+	:"=&c" (d0),"=&S" (d1),"=&D" (d2) \
+	:"0" (BLOCK_SIZE/4),"1" ((long)(from)),"2" ((long)(to)) \
+	:"memory"); \
+} while (0)
 
 static void setup_DMA(void)
 {
