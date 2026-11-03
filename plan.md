@@ -14,3 +14,4 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | Step | Commit | Notes |
 |---|---|---|
 | 1.1 | gitignore: ignore build outputs | Object files, archives, a.out (default gcc output), Image, System.map, tools/system, tools/build, boot/bootsect, boot/setup. |
+| 1.2 | Makefile: use host GNU as/ld for i386 ELF | AS=as --32, LD=ld, LDFLAGS=-m elf_i386 -Ttext 0 -e startup_32 -M (was 1991 gas/gld, a.out). |
