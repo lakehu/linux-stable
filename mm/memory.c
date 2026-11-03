@@ -80,7 +80,7 @@ __asm__ __volatile__("std ; repne ; scasb\n\t"
 	"leal 4092(%%edx),%%edi\n\t"
 	"rep ; stosl\n\t"
 	"movl %%edx,%%eax\n"
-	"1:"
+	"1:\tcld"
 	:"=a" (__res),"=&c" (d0),"=&D" (d1)
 	:"0" (0),"i" (LOW_MEM),"1" (PAGING_PAGES),
 	"2" (mem_map+PAGING_PAGES-1)

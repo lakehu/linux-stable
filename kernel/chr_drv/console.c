@@ -185,7 +185,8 @@ static void scrdown(void)
 			"addl $2,%%edi\n\t"	/* %edi has been decremented by 4 */
 			"movl _video_num_columns,%%ecx\n\t"
 			"rep\n\t"
-			"stosw"
+			"stosw\n\t"
+			"cld"
 			:"=&a" (d0),"=&c" (d1),"=&D" (d2),"=&S" (d3)
 			:"0" (video_erase_char),
 			"1" ((bottom-top-1)*video_num_columns>>1),
@@ -201,7 +202,8 @@ static void scrdown(void)
 			"addl $2,%%edi\n\t"	/* %edi has been decremented by 4 */
 			"movl _video_num_columns,%%ecx\n\t"
 			"rep\n\t"
-			"stosw"
+			"stosw\n\t"
+			"cld"
 			:"=&a" (d0),"=&c" (d1),"=&D" (d2),"=&S" (d3)
 			:"0" (video_erase_char),
 			"1" ((bottom-top-1)*video_num_columns>>1),
