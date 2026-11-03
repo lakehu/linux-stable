@@ -48,3 +48,4 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | 3.2 | Makefile: build 32-bit freestanding code | Add -m32 (host gcc is 64-bit), -fno-builtin (strcpy/memcpy etc. not treated as gcc builtins), -fno-stack-protector (no __stack_chk_fail), -std=gnu89 (1991 C rules, e.g. extern inline), -g (line information for gdb/VS Code; raw images unchanged). |
 | 3.3 | Makefile: keep a.out symbol names (-fleading-underscore) | C symbols get a leading underscore as in 1991 a.out (main -> _main), so the assembly (_main, _printk, _stack_start, ...) stays unchanged. |
 | 3.4 | Makefile: no position-independent code (-fno-pie) | Ubuntu gcc defaults to PIE: GOT and get_pc_thunk, and with -fleading-underscore an unresolvable __GLOBAL_OFFSET_TABLE_. The kernel is linked at fixed address 0. |
+| 3.5 | kernel/Makefile: use the host toolchain and modern gcc flags | gas/gld/gar -> as/ld/ar (as with -g), same CFLAGS changes as the top Makefile (incl. -g). |
