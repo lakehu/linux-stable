@@ -57,13 +57,16 @@ run: Image
 debug: Image
 	qemu-system-i386 -boot a -drive format=raw,file=Image,if=floppy -display curses -no-reboot -no-shutdown -monitor unix:qemu-monitor.sock,server,nowait -S -gdb tcp::41234
 
-Image: boot/bootsect boot/setup tools/system tools/build
+# The root file system goes into the same floppy at block 256 (256 KB),
+# where rd_load() (kernel/blk_drv/ramdisk.c) looks for it. The floppy is
+# padded to its full size, so the BIOS reports 18 sectors per track and
+# bootsect.s takes it as a 1.44MB floppy.
+Image: boot/bootsect boot/setup tools/system tools/build rootfs.img
 	objcopy -O binary -R .note -R .comment tools/system tools/kernel
 	tools/build boot/bootsect boot/setup tools/kernel $(ROOT_DEV) > Image
 	rm -f tools/kernel
-# Not needed yet: QEMU boots the image as it is. Enable if a full 1.44MB
-# floppy image is needed.
-#	truncate -s $(FLOPPY_DISK_SIZE) Image
+	truncate -s $(FLOPPY_DISK_SIZE) Image
+	dd if=rootfs.img of=Image bs=1024 seek=256 conv=notrunc status=none
 	sync
 
 disk: Image
