@@ -26,7 +26,11 @@
 #include <sys/types.h>	/* unistd.h needs this */
 #include <sys/stat.h>
 #include <linux/fs.h>
+#include <sys/sysmacros.h>	/* major/minor */
 #include <unistd.h>	/* contains read/write */
+
+#define MAJOR(dev) major(dev)
+#define MINOR(dev) minor(dev)
 #include <fcntl.h>
 
 #define GCC_HEADER 1024
