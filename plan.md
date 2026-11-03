@@ -33,3 +33,4 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | 2.10 | boot/setup.s: print "Now we are in setup ..." | New: print_msg helper (BIOS int 0x10 AH=13h, es:bp + cx) and a first message when setup starts. |
 | 2.11 | boot/setup.s: print "Entering protected mode ..." | New: last BIOS message, printed before cli and before the system is moved over the interrupt vectors; then the cursor position at 0x90000 is saved again so the kernel console starts below it. |
 | 2.12 | Makefile: assemble setup with as + ld + objcopy -O binary | Same recipe as the boot sector; boot/setup is a raw binary. |
+| 2.13 | Makefile: add setup to bootimage | `bootimage` = bootsect + setup in sectors 2-5 (dd). Boots to "Entering protected mode ...", then resets (no system at address 0 yet). |

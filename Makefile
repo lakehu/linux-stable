@@ -41,10 +41,11 @@ all:	bootimage
 # 1.44MB floppy: 80 tracks * 2 heads * 18 sectors * 512 bytes
 FLOPPY_DISK_SIZE = 1474560
 
-# Floppy image with only the boot sector (512 bytes).
-# Used until setup and system can be built; then 'all' builds Image again.
-bootimage: boot/bootsect
+# Floppy image with the boot sector and setup (sectors 2-5), no system yet.
+# Used until the system can be built; then 'all' builds Image again.
+bootimage: boot/bootsect boot/setup
 	cp boot/bootsect bootimage
+	dd if=boot/setup of=bootimage bs=512 seek=1 conv=notrunc status=none
 # Not needed yet: QEMU boots the image as it is, even though bootsect reads
 # sectors past its end. Enable if a full 1.44MB floppy image is needed.
 #	truncate -s $(FLOPPY_DISK_SIZE) bootimage
