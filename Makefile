@@ -11,8 +11,7 @@ AS	=as --32 -g
 LD	=ld
 LDFLAGS	=-m elf_i386 -Ttext 0 -e startup_32 -M
 CC	=gcc $(RAMDISK)
-CFLAGS	=-Wall -O -fstrength-reduce -fomit-frame-pointer \
--fcombine-regs -mstring-insns
+CFLAGS	=-Wall -O -fstrength-reduce -fomit-frame-pointer
 CPP	=cpp -nostdinc -Iinclude
 
 #

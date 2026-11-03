@@ -39,3 +39,9 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | 2.15 | Makefile: run QEMU with -no-reboot -no-shutdown | On a triple fault QEMU pauses and keeps the screen, instead of rebooting in a loop (screen flashing). |
 | 2.16 | tools/build.c: accept raw system binary | Makefile turns tools/system (ELF) into a raw binary with objcopy; build.c no longer skips/checks a 1024-byte a.out header. |
 | 2.17 | Makefile: default root device without host /dev/hd6 | `ROOT_DEV=` (empty): build.c then uses its default (3,6) = /dev/hd6; modern hosts have no /dev/hd6 to stat. |
+
+### Phase 3: Compiler flags and sub-Makefiles
+
+| Step | Commit | Notes |
+|---|---|---|
+| 3.1 | Makefile: drop Linus-only gcc flags | Remove -fcombine-regs and -mstring-insns (Linus's patched gcc 1.x; modern gcc rejects them). |
