@@ -52,7 +52,12 @@ current->start_code + current->end_code)
 static long HIGH_MEMORY = 0;
 
 #define copy_page(from,to) \
-__asm__("cld ; rep ; movsl"::"S" (from),"D" (to),"c" (1024):"cx","di","si")
+do { int d0, d1, d2; \
+__asm__ __volatile__("cld ; rep ; movsl" \
+	:"=&S" (d0),"=&D" (d1),"=&c" (d2) \
+	:"0" (from),"1" (to),"2" (1024) \
+	:"memory"); \
+} while (0)
 
 static unsigned char mem_map [ PAGING_PAGES ] = {0,};
 
@@ -63,22 +68,23 @@ static unsigned char mem_map [ PAGING_PAGES ] = {0,};
 unsigned long get_free_page(void)
 {
 register unsigned long __res asm("ax");
+int d0, d1;
 
-__asm__("std ; repne ; scasb\n\t"
+__asm__ __volatile__("std ; repne ; scasb\n\t"
 	"jne 1f\n\t"
 	"movb $1,1(%%edi)\n\t"
 	"sall $12,%%ecx\n\t"
-	"addl %2,%%ecx\n\t"
+	"addl %4,%%ecx\n\t"
 	"movl %%ecx,%%edx\n\t"
 	"movl $1024,%%ecx\n\t"
 	"leal 4092(%%edx),%%edi\n\t"
 	"rep ; stosl\n\t"
 	"movl %%edx,%%eax\n"
 	"1:"
-	:"=a" (__res)
-	:"0" (0),"i" (LOW_MEM),"c" (PAGING_PAGES),
-	"D" (mem_map+PAGING_PAGES-1)
-	:"di","cx","dx");
+	:"=a" (__res),"=&c" (d0),"=&D" (d1)
+	:"0" (0),"i" (LOW_MEM),"1" (PAGING_PAGES),
+	"2" (mem_map+PAGING_PAGES-1)
+	:"dx","memory");
 return __res;
 }
 
