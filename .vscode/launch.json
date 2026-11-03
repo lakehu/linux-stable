@@ -16,7 +16,7 @@
             "name": "(gdb) Linux 0.11 in QEMU",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/tools/system.min",
+            "program": "${workspaceFolder}/tools/system",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

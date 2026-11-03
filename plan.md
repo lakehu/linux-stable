@@ -87,3 +87,4 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | Step | Commit | Notes |
 |---|---|---|
 | 6.1 | init/main.c: remove the temporary minimal main() | Reverts the MINIMAL_MAIN block of 4.1: the real main(), printk and stack_start are back. bootimage (head.o + main.o only) no longer links; next step builds the full Image. |
+| 6.2 | Makefile: build and run the full Image again | `all: Image` again; `make run` boots Image. The temporary bootimage/system.min rules are removed; FLOPPY_DISK_SIZE stays; the commented-out truncate moves to the Image rule. |

@@ -36,27 +36,10 @@ LIBS	=lib/lib.a
 	$(CC) $(CFLAGS) \
 	-nostdinc -Iinclude -c -o $*.o $<
 
-all:	bootimage
+all:	Image
 
 # 1.44MB floppy: 80 tracks * 2 heads * 18 sectors * 512 bytes
 FLOPPY_DISK_SIZE = 1474560
-
-# Floppy image with the boot sector, setup (sectors 2-5) and a minimal
-# system (sector 6 on) made of boot/head.s and the temporary minimal
-# init/main.c only. Used until the whole system can be built; then 'all'
-# builds Image again.
-bootimage: boot/bootsect boot/setup tools/system.min
-	objcopy -O binary -R .note -R .comment tools/system.min tools/kernel.min
-	cp boot/bootsect bootimage
-	dd if=boot/setup of=bootimage bs=512 seek=1 conv=notrunc status=none
-	dd if=tools/kernel.min of=bootimage bs=512 seek=5 conv=notrunc status=none
-	rm -f tools/kernel.min
-# Not needed yet: QEMU boots the image as it is, even though bootsect reads
-# sectors past its end. Enable if a full 1.44MB floppy image is needed.
-#	truncate -s $(FLOPPY_DISK_SIZE) bootimage
-
-tools/system.min: boot/head.o init/main.o
-	$(LD) $(LDFLAGS) boot/head.o init/main.o -o tools/system.min > System.map
 
 # Boot the image in QEMU, text screen in the terminal.
 # QEMU monitor (registers, memory, quit): in a second terminal run
@@ -64,20 +47,23 @@ tools/system.min: boot/head.o init/main.o
 # and type e.g. 'info registers' or 'quit'.
 # -no-reboot -no-shutdown: on a triple fault, stop (keeping the screen)
 # instead of rebooting in a loop.
-run: bootimage
-	qemu-system-i386 -boot a -drive format=raw,file=bootimage,if=floppy -display curses -no-reboot -no-shutdown -monitor unix:qemu-monitor.sock,server,nowait
+run: Image
+	qemu-system-i386 -boot a -drive format=raw,file=Image,if=floppy -display curses -no-reboot -no-shutdown -monitor unix:qemu-monitor.sock,server,nowait
 
 # Like 'run', but for a debugger: QEMU starts its gdb server on TCP port 41234
 # (-gdb tcp::41234) and stops the CPU before the first instruction (-S). Connect with
-#   gdb -ex 'target remote :41234' tools/system.min
+#   gdb -ex 'target remote :41234' tools/system
 # or with VS Code (.vscode/launch.json, "Run and Debug": Linux 0.11).
-debug: bootimage
-	qemu-system-i386 -boot a -drive format=raw,file=bootimage,if=floppy -display curses -no-reboot -no-shutdown -monitor unix:qemu-monitor.sock,server,nowait -S -gdb tcp::41234
+debug: Image
+	qemu-system-i386 -boot a -drive format=raw,file=Image,if=floppy -display curses -no-reboot -no-shutdown -monitor unix:qemu-monitor.sock,server,nowait -S -gdb tcp::41234
 
 Image: boot/bootsect boot/setup tools/system tools/build
 	objcopy -O binary -R .note -R .comment tools/system tools/kernel
 	tools/build boot/bootsect boot/setup tools/kernel $(ROOT_DEV) > Image
 	rm -f tools/kernel
+# Not needed yet: QEMU boots the image as it is. Enable if a full 1.44MB
+# floppy image is needed.
+#	truncate -s $(FLOPPY_DISK_SIZE) Image
 	sync
 
 disk: Image
@@ -136,8 +122,8 @@ tmp.s:	boot/bootsect.s tools/system
 	cat boot/bootsect.s >> tmp.s
 
 clean:
-	rm -f Image bootimage System.map tmp_make core boot/bootsect boot/setup
-	rm -f init/*.o tools/system tools/system.min tools/build boot/*.o
+	rm -f Image System.map tmp_make core boot/bootsect boot/setup
+	rm -f init/*.o tools/system tools/build boot/*.o
 	(cd mm;make clean)
 	(cd fs;make clean)
 	(cd kernel;make clean)
