@@ -90,3 +90,4 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | 6.2 | Makefile: build and run the full Image again | `all: Image` again; `make run` boots Image. The temporary bootimage/system.min rules are removed; FLOPPY_DISK_SIZE stays; the commented-out truncate moves to the Image rule. |
 | 6.3 | init/main.c: print build stamp at boot | printk("Linux 0.11 built <date> <time> with gcc <version>") right after tty_init(), so each boot shows which kernel runs. |
 | 6.4 | gitignore: ignore the generated keyboard.s | kernel/chr_drv/keyboard.s is produced from keyboard.S by cpp during the build. |
+| **T4** | test: the real kernel boots and prints its messages | `make run` (full Image): boot messages, "Linux 0.11 built ... with gcc 9.4.0", then "harddisk I/O error / dev 0306, block 1 / Kernel panic: Unable to mount root" (no root disk yet, as expected) (passed). |
