@@ -74,7 +74,9 @@ debug: bootimage
 	qemu-system-i386 -boot a -drive format=raw,file=bootimage,if=floppy -display curses -no-reboot -no-shutdown -monitor unix:qemu-monitor.sock,server,nowait -S -gdb tcp::41234
 
 Image: boot/bootsect boot/setup tools/system tools/build
-	tools/build boot/bootsect boot/setup tools/system $(ROOT_DEV) > Image
+	objcopy -O binary -R .note -R .comment tools/system tools/kernel
+	tools/build boot/bootsect boot/setup tools/kernel $(ROOT_DEV) > Image
+	rm -f tools/kernel
 	sync
 
 disk: Image
