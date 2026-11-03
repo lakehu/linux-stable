@@ -76,3 +76,4 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | 5.6 | blk_drv: input registers changed by the asm become outputs | floppy.c copy_buffer (c/S/D) and hd.c port_read (D/c), port_write (S/c): early-clobber dummy outputs, do { } while (0), __volatile__, "memory". |
 | 5.7 | asm/memory.h: input registers changed by the asm become outputs | memcpy() macro (used by ramdisk.c): D/S/c clobbered inputs -> early-clobber dummy outputs, __volatile__, "memory"; still returns dest. |
 | 5.8 | console.c: input registers changed by the asm become outputs | scrup (4 blocks), scrdown (2), csi_J, csi_K, con_write: clobbered inputs -> early-clobber dummy outputs, __volatile__, "memory"; '%1' (ecx) -> %%ecx in scrup, memory operand %1 -> %2 in con_write. |
+| 5.9 | lib/malloc.c: no cast as lvalue | `(void *) cp = get_free_page()` assigned to a cast: assign cp (with a char * cast of the result), then use it for page/freeptr. |
