@@ -9,3 +9,4 @@ tools/build
 boot/bootsect
 boot/setup
 bootimage
+tools/system.min

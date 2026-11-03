@@ -34,3 +34,4 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | 2.11 | boot/setup.s: print "Entering protected mode ..." | New: last BIOS message, printed before cli and before the system is moved over the interrupt vectors; then the cursor position at 0x90000 is saved again so the kernel console starts below it. |
 | 2.12 | Makefile: assemble setup with as + ld + objcopy -O binary | Same recipe as the boot sector; boot/setup is a raw binary. |
 | 2.13 | Makefile: add setup to bootimage | `bootimage` = bootsect + setup in sectors 2-5 (dd). Boots to "Entering protected mode ...", then resets (no system at address 0 yet). |
+| **T2** | test: setup enters protected mode and jumps to 32-bit code | TEMPORARY: boot/head.s replaced by a 32-bit stub (writes "PM OK" to VGA memory and loops); bootimage gets a system made of head.o. `make run` shows the 4 boot messages and "PM OK", no reset (passed). Reverted in 4.3. |
