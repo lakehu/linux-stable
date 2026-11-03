@@ -128,6 +128,7 @@ void main(void)		/* This really IS void, no error here. */
 	blk_dev_init();
 	chr_dev_init();
 	tty_init();
+	printk("Linux 0.11 built %s %s with gcc %s\n\r", __DATE__, __TIME__, __VERSION__);
 	time_init();
 	sched_init();
 	buffer_init(buffer_memory_end);
