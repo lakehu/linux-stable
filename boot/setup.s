@@ -115,6 +115,25 @@ is_disk1:
 
 # now we want to move to protected mode ...
 
+# Last chance to print with the BIOS: moving the system down overwrites
+# the interrupt vectors at address 0.
+
+	mov	%cs,%ax
+	mov	%ax,%es
+	mov	$msg_pm,%bp
+	mov	$29,%cx
+	call	print_msg
+
+# The cursor position was saved at 0x90000 before this message; save it
+# again so the kernel console starts below the message.
+
+	mov	$INITSEG,%ax
+	mov	%ax,%ds
+	mov	$0x03,%ah	# read cursor pos
+	xor	%bh,%bh
+	int	$0x10
+	mov	%dx,0
+
 	cli			# no interrupts allowed !
 
 # first we move the system to it's rightful place
@@ -227,6 +246,10 @@ print_msg:
 
 msg_setup:
 	.ascii "Now we are in setup ..."
+	.byte 13,10
+
+msg_pm:
+	.ascii "Entering protected mode ..."
 	.byte 13,10
 
 gdt:

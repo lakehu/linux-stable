@@ -31,3 +31,4 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | **T1** | test: boot sector prints its messages | `make run` (bootimage = bootsect only): "Loading system ..." and "Jumping to setup ..." (passed). |
 | 2.9 | boot/setup.s: convert as86 syntax to GNU as (.code16) | Line-by-line translation, original comments; keeps 8042 A20 and lmsw (oldlinux switched to port 0x92 and cr0, and added lab debug prints). |
 | 2.10 | boot/setup.s: print "Now we are in setup ..." | New: print_msg helper (BIOS int 0x10 AH=13h, es:bp + cx) and a first message when setup starts. |
+| 2.11 | boot/setup.s: print "Entering protected mode ..." | New: last BIOS message, printed before cli and before the system is moved over the interrupt vectors; then the cursor position at 0x90000 is saved again so the kernel console starts below it. |
