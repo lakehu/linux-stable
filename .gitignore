@@ -7,3 +7,4 @@ tools/system
 tools/build
 boot/bootsect
 boot/setup
+bootimage

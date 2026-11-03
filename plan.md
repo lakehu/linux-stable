@@ -22,3 +22,4 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 |---|---|---|
 | 2.1 | boot/bootsect.s: convert as86 syntax to GNU as (.code16) | Line-by-line translation, original comments, no behaviour change; ROOT_DEV stays 0x306. |
 | 2.2 | Makefile: assemble boot sector with as + ld + objcopy -O binary | Raw 512-byte boot/bootsect instead of as86/ld86 Minix binary. |
+| 2.3 | Makefile: build a boot-sector-only floppy image by default | `make` builds `bootimage` = boot/bootsect only (512 bytes). Padding to `FLOPPY_DISK_SIZE` (1474560 = 1.44 MB) is left commented out until later steps need it. `all: Image` returns once setup and system build. |

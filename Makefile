@@ -36,7 +36,18 @@ LIBS	=lib/lib.a
 	$(CC) $(CFLAGS) \
 	-nostdinc -Iinclude -c -o $*.o $<
 
-all:	Image
+all:	bootimage
+
+# 1.44MB floppy: 80 tracks * 2 heads * 18 sectors * 512 bytes
+FLOPPY_DISK_SIZE = 1474560
+
+# Floppy image with only the boot sector (512 bytes).
+# Used until setup and system can be built; then 'all' builds Image again.
+bootimage: boot/bootsect
+	cp boot/bootsect bootimage
+# Not needed yet: QEMU boots the image as it is, even though bootsect reads
+# sectors past its end. Enable if a full 1.44MB floppy image is needed.
+#	truncate -s $(FLOPPY_DISK_SIZE) bootimage
 
 Image: boot/bootsect boot/setup tools/system tools/build
 	tools/build boot/bootsect boot/setup tools/system $(ROOT_DEV) > Image
@@ -97,7 +108,7 @@ tmp.s:	boot/bootsect.s tools/system
 	cat boot/bootsect.s >> tmp.s
 
 clean:
-	rm -f Image System.map tmp_make core boot/bootsect boot/setup
+	rm -f Image bootimage System.map tmp_make core boot/bootsect boot/setup
 	rm -f init/*.o tools/system tools/build boot/*.o
 	(cd mm;make clean)
 	(cd fs;make clean)
