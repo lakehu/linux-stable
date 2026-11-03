@@ -4,12 +4,17 @@ minixfs.py - build a small MINIX v1 file system image (as used by Linux 0.11),
 without root rights or loop mounts.
 
   python3 tools/minixfs.py IMAGE BLOCKS ENTRY...
+  python3 tools/minixfs.py extract IMAGE[@OFFSET] /path OUTFILE
 
 ENTRY is one of
   dir:/path                     directory (mode 0755)
   file:/path=HOSTFILE[:MODE]    regular file copied from HOSTFILE (octal MODE, default 0755)
   text:/path=TEXT               regular file with TEXT as content (mode 0644)
   chr:/path=MAJOR,MINOR         character device (mode 0666)
+
+'extract' copies a regular file out of an existing MINIX v1 image; OFFSET is
+the byte offset of the file system in IMAGE (e.g. 512 for partition 1 of a
+hard disk image whose partition starts at sector 1).
 
 Parent directories must be listed before their contents. Layout and structures
 follow include/linux/fs.h: 1024-byte blocks, 32-byte inodes, 16-byte directory
@@ -150,7 +155,47 @@ def build(image, nblocks, specs):
     open(image, "wb").write(img)
 
 
+def extract(image, path, out):
+    name, _, offset = image.partition("@")
+    d = open(name, "rb").read()[int(offset or 0):]
+    _, _, imap_blocks, zmap_blocks, _, _, _, magic = struct.unpack("<HHHHHHIH", d[BLOCK:BLOCK + 18])
+    if magic != SUPER_MAGIC:
+        sys.exit("no MINIX v1 file system in " + image)
+    itable = (2 + imap_blocks + zmap_blocks) * BLOCK
+
+    def inode(n):
+        return struct.unpack("<HHIIBB9H", d[itable + (n - 1) * 32:itable + n * 32])
+
+    def content(ino):
+        zones = list(ino[6:13])
+        if ino[13]:
+            zones += struct.unpack("<512H", d[ino[13] * BLOCK:(ino[13] + 1) * BLOCK])
+        if ino[14]:
+            sys.exit("double indirect zones not supported")
+        nz = (ino[2] + BLOCK - 1) // BLOCK
+        return b"".join(d[z * BLOCK:(z + 1) * BLOCK] if z else bytes(BLOCK)
+                        for z in zones[:nz])[:ino[2]]
+
+    n = 1
+    for part in path.strip("/").split("/"):
+        data = content(inode(n))
+        for o in range(0, len(data), 16):
+            ino, raw = struct.unpack("<H14s", data[o:o + 16])
+            if ino and raw.rstrip(b"\0").decode() == part:
+                n = ino
+                break
+        else:
+            sys.exit("not found: " + path)
+    ino = inode(n)
+    if ino[0] & 0o170000 != S_IFREG:
+        sys.exit("not a regular file: " + path)
+    open(out, "wb").write(content(ino))
+
+
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
+    if len(sys.argv) == 5 and sys.argv[1] == "extract":
+        extract(sys.argv[2], sys.argv[3], sys.argv[4])
+    elif len(sys.argv) >= 3:
+        build(sys.argv[1], int(sys.argv[2]), sys.argv[3:])
+    else:
         sys.exit(__doc__)
-    build(sys.argv[1], int(sys.argv[2]), sys.argv[3:])
