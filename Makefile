@@ -2,7 +2,7 @@
 # if you want the ram-disk device, define this to be the
 # size in blocks.
 #
-RAMDISK = -DRAMDISK=512
+RAMDISK = -DRAMDISK=1024
 
 AS86	=as86 -0 -a
 LD86	=ld86 -0
@@ -87,13 +87,13 @@ tools/hello-elf: tools/hello-elf.c
 		-Wl,-Ttext-segment=0 -Wl,--build-id=none -Wl,-e,_start \
 		-o tools/hello-elf tools/hello-elf.c
 
-# Tiny root file system (MINIX v1, 512 blocks = the RAM disk size): what
+# Tiny root file system (MINIX v1, 1024 blocks = the RAM disk size): what
 # init() needs, a shell, ls and cat. The programs in rootfs-bin/ are 0.11
 # a.out binaries (bash as sh), extracted once with 'tools/minixfs.py
 # extract' from the 0.11 hard disk image of oldlinux-0.11 (yuan-xy/Linux-0.11,
 # hdc-0.11.img, partition 1 at byte offset 512). tools/hello stays in as
 # /bin/hello, the ELF test program tools/hello-elf is /bin/hello-elf.
-ROOTFS_BLOCKS = 512
+ROOTFS_BLOCKS = 1024
 ROOTFS_PROGS = rootfs-bin/sh rootfs-bin/ls rootfs-bin/cat
 rootfs.img: tools/minixfs.py tools/hello tools/hello-elf $(ROOTFS_PROGS)
 	python3 tools/minixfs.py rootfs.img $(ROOTFS_BLOCKS) \
