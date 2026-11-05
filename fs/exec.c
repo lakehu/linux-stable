@@ -21,6 +21,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <a.out.h>
+#include <elf.h>
 
 #include <linux/fs.h>
 #include <linux/sched.h>
@@ -177,6 +178,115 @@ static unsigned long change_ldt(unsigned long text_size,unsigned long * page)
 }
 
 /*
+ * Static i386 ELF executables, after the Linux 0.01 remake by Abdel
+ * Benamrouche (patch_rm_3.0 and the loader fix in patch_rm_3.5, see
+ * ref/linux-0.01-rm/). Unlike the remake, the program headers (PT_LOAD)
+ * are used instead of the section headers. A task has only its 64MB
+ * segment, so the program must be linked at address 0 (for example with
+ * -Wl,-Ttext-segment=0). The segments are copied at exec time: there is
+ * no demand loading and no sharing, so current->executable stays NULL.
+ */
+#define ELF_LIMIT 0x3000000	/* same limit as a.out text+data+bss */
+
+/* returns 0 if buf is not an ELF file, 1 if it is a usable one, else -1 */
+static int elf_check(char * buf, struct m_inode * inode)
+{
+	Elf32_Ehdr * eh = (Elf32_Ehdr *) buf;
+	Elf32_Phdr * ph;
+	int i;
+
+	if (eh->e_ident[0] != ELFMAG0 || eh->e_ident[1] != ELFMAG1 ||
+	    eh->e_ident[2] != ELFMAG2 || eh->e_ident[3] != ELFMAG3)
+		return 0;
+	if (eh->e_ident[EI_CLASS] != ELFCLASS32 ||
+	    eh->e_ident[EI_DATA] != ELFDATA2LSB ||
+	    eh->e_type != ET_EXEC || eh->e_machine != EM_386 ||
+	    eh->e_phentsize != sizeof(Elf32_Phdr) ||
+	    eh->e_phoff > BLOCK_SIZE ||	/* program headers in 1st block */
+	    eh->e_phoff + eh->e_phnum * sizeof(Elf32_Phdr) > BLOCK_SIZE)
+		return -1;
+	ph = (Elf32_Phdr *) (buf + eh->e_phoff);
+	for (i = 0 ; i < eh->e_phnum ; i++, ph++) {
+		if (ph->p_type != PT_LOAD)
+			continue;
+		if (ph->p_filesz > ph->p_memsz || ph->p_memsz > ELF_LIMIT ||
+		    ph->p_vaddr > ELF_LIMIT - ph->p_memsz ||
+		    ph->p_offset > inode->i_size ||
+		    ph->p_filesz > inode->i_size - ph->p_offset)
+			return -1;
+	}
+	return 1;
+}
+
+/* copy size bytes from file position pos to user address addr (fs) */
+static int elf_copy(struct m_inode * inode, unsigned long pos,
+	char * addr, unsigned long size)
+{
+	struct buffer_head * bh;
+	unsigned long i, n;
+	int block;
+
+	while (size) {
+		n = BLOCK_SIZE - pos % BLOCK_SIZE;
+		if (n > size)
+			n = size;
+		if ((block = bmap(inode, pos / BLOCK_SIZE))) { /* 0: hole */
+			if (!(bh = bread(inode->i_dev, block)))
+				return -1;
+			for (i = 0 ; i < n ; i++)
+				put_fs_byte(bh->b_data[pos % BLOCK_SIZE + i],
+					addr + i);
+			brelse(bh);
+		}
+		pos += n;
+		addr += n;
+		size -= n;
+	}
+	return 0;
+}
+
+/*
+ * Copies the PT_LOAD segments into the new (empty) user space and zeroes
+ * the bss up to the end of its first page (the pages after it are new
+ * zero pages). Returns the end of the highest segment (the start of the
+ * brk area); on a read error the task gets SIGSEGV.
+ */
+static unsigned long elf_load(struct m_inode * inode, unsigned long * entry)
+{
+	struct buffer_head * bh;
+	Elf32_Ehdr * eh;
+	Elf32_Phdr * ph;
+	unsigned long a, end = 0;
+	int i;
+
+	*entry = 0;
+	if (!(bh = bread(inode->i_dev, inode->i_zone[0])))
+		goto bad;
+	eh = (Elf32_Ehdr *) bh->b_data;
+	ph = (Elf32_Phdr *) (bh->b_data + eh->e_phoff);
+	for (i = 0 ; i < eh->e_phnum ; i++, ph++) {
+		if (ph->p_type != PT_LOAD)
+			continue;
+		if (elf_copy(inode, ph->p_offset, (char *) ph->p_vaddr,
+		    ph->p_filesz)) {
+			brelse(bh);
+			goto bad;
+		}
+		a = ph->p_vaddr + ph->p_filesz;
+		while (a < ph->p_vaddr + ph->p_memsz && (a & 0xfff))
+			put_fs_byte(0, (char *) a++);
+		if (end < ph->p_vaddr + ph->p_memsz)
+			end = ph->p_vaddr + ph->p_memsz;
+	}
+	*entry = eh->e_entry;
+	brelse(bh);
+	return end;
+bad:
+	current->signal |= 1 << (SIGSEGV - 1);
+	return 0;
+}
+
+/*
  * 'do_execve()' executes a new program.
  */
 int do_execve(unsigned long * eip,long tmp,char * filename,
@@ -190,6 +300,8 @@ int do_execve(unsigned long * eip,long tmp,char * filename,
 	int e_uid, e_gid;
 	int retval;
 	int sh_bang = 0;
+	int elf;
+	unsigned long entry;
 	unsigned long p=PAGE_SIZE*MAX_ARG_PAGES-4;
 
 	if ((0xffff & eip[1]) != 0x000f)
@@ -295,14 +407,15 @@ restart_interp:
 		set_fs(old_fs);
 		goto restart_interp;
 	}
+	elf = elf_check(bh->b_data, inode);
 	brelse(bh);
-	if (N_MAGIC(ex) != ZMAGIC || ex.a_trsize || ex.a_drsize ||
+	if (elf < 0 || (!elf && (N_MAGIC(ex) != ZMAGIC || ex.a_trsize || ex.a_drsize ||
 		ex.a_text+ex.a_data+ex.a_bss>0x3000000 ||
-		inode->i_size < ex.a_text+ex.a_data+ex.a_syms+N_TXTOFF(ex)) {
+		inode->i_size < ex.a_text+ex.a_data+ex.a_syms+N_TXTOFF(ex)))) {
 		retval = -ENOEXEC;
 		goto exec_error2;
 	}
-	if (N_TXTOFF(ex) != BLOCK_SIZE) {
+	if (!elf && N_TXTOFF(ex) != BLOCK_SIZE) {
 		printk("%s: N_TXTOFF != BLOCK_SIZE. See a.out.h.", filename);
 		retval = -ENOEXEC;
 		goto exec_error2;
@@ -318,7 +431,7 @@ restart_interp:
 /* OK, This is the point of no return */
 	if (current->executable)
 		iput(current->executable);
-	current->executable = inode;
+	current->executable = elf ? NULL : inode;
 	for (i=0 ; i<32 ; i++)
 		current->sigaction[i].sa_handler = NULL;
 	for (i=0 ; i<NR_OPEN ; i++)
@@ -330,18 +443,23 @@ restart_interp:
 	if (last_task_used_math == current)
 		last_task_used_math = NULL;
 	current->used_math = 0;
-	p += change_ldt(ex.a_text,page)-MAX_ARG_PAGES*PAGE_SIZE;
+	p += change_ldt(elf ? 0x4000000 : ex.a_text,page)-MAX_ARG_PAGES*PAGE_SIZE;
 	p = (unsigned long) create_tables((char *)p,argc,envc);
-	current->brk = ex.a_bss +
-		(current->end_data = ex.a_data +
-		(current->end_code = ex.a_text));
+	if (elf) {
+		current->brk = current->end_data = current->end_code =
+			elf_load(inode, &entry);
+		iput(inode);		/* not current->executable, see above */
+	} else
+		current->brk = ex.a_bss +
+			(current->end_data = ex.a_data +
+			(current->end_code = ex.a_text));
 	current->start_stack = p & 0xfffff000;
 	current->euid = e_uid;
 	current->egid = e_gid;
 	i = ex.a_text+ex.a_data;
-	while (i&0xfff)
+	while (!elf && (i&0xfff))
 		put_fs_byte(0,(char *) (i++));
-	eip[0] = ex.a_entry;		/* eip, magic happens :-) */
+	eip[0] = elf ? entry : ex.a_entry;	/* eip, magic happens :-) */
 	eip[3] = p;			/* stack pointer */
 	return 0;
 exec_error2:
