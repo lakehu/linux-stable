@@ -1,4 +1,4 @@
-# Linux 0.11 with a modern GCC (branch `gcc9-minimal`)
+# Linux 0.11 with a modern GCC (branches `gcc9-minimal`, `elf-uclibc`)
 
 The official Linux 0.11 source (December 8, 1991) built with today's host
 tools and booted in QEMU - in many small commits, one step each. Every commit
@@ -6,6 +6,14 @@ subject reads `Phase X, step Y: ...` or `Phase X, test Tn: ...`, and every
 commit carries [`plan.md`](plan.md) with the steps done up to that commit.
 Reference port: oldlinux-0.11 (yuan-xy/Linux-0.11, from oldlinux.org); where it
 does not fix a problem that is fixed here, the commit message says so.
+
+Branch `elf-uclibc` adds phase 10 on top: static i386 **ELF** programs and a
+**BusyBox** built with uClibc-ng and gcc 13 by Buildroot run next to the
+original a.out programs (see [ELF programs and BusyBox](#elf-programs-and-busybox-phase-10)).
+
+![BusyBox on Linux 0.11 (animated)](docs/busybox-session.svg)
+
+*A recorded `make run` session on branch `elf-uclibc`, replayed as an animated SVG: Linux 0.11 boots from the floppy, and at the 0.11 bash prompt the static ELF BusyBox (built with gcc 13.3.0 and uClibc-ng 1.0.59) shows its banner and runs `uname`, `ls -l`, `cp`, `cat | wc`, `seq | sort`; `hello-elf` shows what the ELF loader passes at entry.*
 
 ![gdb session (animated)](docs/gdb-session.svg)
 
@@ -30,6 +38,7 @@ Tested on this host:
 | python3 | 3.8 | tools/minixfs.py, tools/mkaout.py (root file system, a.out wrapper) |
 | netcat (OpenBSD) | 1.206 | QEMU monitor socket (`nc -U`) |
 | VS Code + C/C++ extension | cpptools 1.17.5 | optional, graphical debugging (`.vscode/`) |
+| Buildroot | 2025.02 (gcc 13.3.0, uClibc-ng 1.0.59) | optional, only to rebuild `rootfs-bin/busybox` (phase 10) |
 
 `bin86` (as86/ld86) is **not** needed: the boot sector and setup were
 translated to GNU as syntax (phase 2).
@@ -41,7 +50,8 @@ make            # Image: 1.44 MB floppy = bootsect + setup + kernel + root file 
 make run        # boot it in QEMU, VGA text screen in this terminal (-display curses)
 ```
 
-`make run` ends at a `bash#` prompt (bash, ls, cat from `rootfs-bin/`). The
+`make run` ends at a `bash#` prompt (bash, ls, cat from `rootfs-bin/`;
+on `elf-uclibc` also `busybox` and `hello-elf`). The
 QEMU monitor is on a Unix socket - Alt-2/Esc 2 of the curses display does not
 reach QEMU in a terminal:
 
@@ -61,6 +71,77 @@ Makefiles do not notice flag changes or changes inside the subdirectories.
 ### How it boots
 
 ![Boot flow](docs/boot-flow.svg)
+
+## ELF programs and BusyBox (phase 10)
+
+Linux 0.11 only runs a.out ZMAGIC programs and has 72 system calls. Phase 10
+adds what a static program built by today's tools needs:
+
+| Kernel change | Step | For |
+|---|---|---|
+| ELF loader for static i386 programs (`PT_LOAD` segments, copied at exec, 64 MB code segment), a.out stays | 10.3 | every ELF program |
+| i386 ELF entry state: `argc, argv[], envp[]`, empty auxiliary vector, `%edx` = 0 | 10.4 | libc start code (uClibc-ng calls `%edx` at exit) |
+| 1 MB RAM disk and rootfs | 10.6 | room for BusyBox |
+| 256-entry system call table (Linux numbers), `-ENOSYS` for missing calls | 10.7 | clear errors instead of EPERM |
+| `stat64`, `lstat64`, `fstat64` | 10.9 | `ls -l`, `cp`, `rm` |
+| `getdents64` with the Linux ABI | 10.10 | `ls DIR` |
+| `uname` (122) | 10.11 | `uname` |
+| CMOS years 00-69 are 20xx | 10.12 | file dates |
+| `rename` for files, `renameat2` | 10.13 | `mv` |
+
+Programs have to be **static**, without TLS (no `%gs`), and **linked at
+address 0** (`-Wl,-Ttext-segment=0`): a task has only its 64 MB segment.
+
+```text
+bash# busybox
+BusyBox v1.37.0 (2026-11-05 17:23:10 CST, gcc 13.3.0, uClibc-ng 1.0.59) multi-call binary.
+...
+bash# busybox ls -l /bin
+-rwxr-xr-x    1 0        0           152560 Jan  1  1970 busybox
+-rwxr-xr-x    1 0        0             5120 Jan  1  1970 hello
+-rwxr-xr-x    1 0        0             8996 Jan  1  1970 hello-elf
+-rwxr-xr-x    1 0        0           283652 Jan  1  1970 sh
+bash# hello-elf a b
+hello from a static ELF program, built Nov  5 2026 16:19:28 with gcc 9.4.0
+edx at entry: 0
+argc: 3
+...
+```
+
+* `tools/hello-elf.c`: libc-free test program (host gcc), prints its build
+  stamp and what the kernel passes at entry.
+* `rootfs-bin/busybox`: BusyBox 1.37.0 (hush and about 30 applets), static
+  uClibc-ng without threads. It is committed; to rebuild it, in Buildroot
+  2025.02 with the `oldlinux` commits (branch `mylfs_2025.02-oldlinux`:
+  uClibc-ng 1.0.59, `configs/oldlinux_i386_busybox_defconfig`,
+  `board/oldlinux/`):
+
+  ```bash
+  make O=output-linux011 oldlinux_i386_busybox_defconfig
+  # Linux 0.11 clears %edx: leave out the Linux 0.01 crt1 workaround
+  sed -i 's|^BR2_GLOBAL_PATCH_DIR=.*|BR2_GLOBAL_PATCH_DIR="board/oldlinux/patches"|' output-linux011/.config
+  make O=output-linux011
+  output-linux011/host/bin/i486-buildroot-linux-uclibc-strip \
+      -o rootfs-bin/busybox output-linux011/build/busybox-1.37.0/busybox
+  ```
+
+  (with a `LD_LIBRARY_PATH` that ends in `:`, run make as
+  `env -u LD_LIBRARY_PATH make ...`).
+
+**Not there yet** (BusyBox prints "Function not implemented"): `getcwd`
+(`pwd`), `wait4` (hush pipes), `nanosleep` (`sleep` returns at once),
+`utimensat` (`touch`), `fcntl64` (hush prompt), `mkdir -p` (trailing
+slashes), signals for uClibc-ng handlers. Branch `elf-uclibc-enhancement`
+has most of these. There are no symbolic links, and `fd` numbers stop at 19
+(`NR_OPEN`).
+
+**Reference:** the Linux 0.01 remake by Abdel Benamrouche (2007-2008), which
+ran bash, coreutils and vim as ELF programs on Linux 0.01. His original
+patches (`patch_rm_3.0` ELF loader, `3.1`/`3.3` system calls) are in
+[`ref/linux-0.01-rm/`](ref/linux-0.01-rm/README.md) with their sources (Internet
+Archive copy of draconux.free.fr). This branch uses program headers instead of
+his section headers, the Linux `getdents64` ABI instead of his one entry per
+call, and clears `%edx` at exec.
 
 ## Debugging with gdb
 
@@ -136,6 +217,8 @@ its message:
 | T4 | phase 6 | the whole kernel boots: `Linux 0.11 built ...`, panic without root disk |
 | T5 | phase 8 | kernel + root file system in one floppy: `hello from userspace` |
 | T6 | phase 8 | interactive bash from the RAM disk |
+| T7 | phase 10 | static ELF program `hello-elf`: build stamp, `%edx` 0, argv, envp, auxv |
+| T8 | phase 10 | BusyBox (uClibc-ng): `uname -a`, `ls -l`, `cp`, `mkdir`, `mv`, `rm`, pipes |
 
 ```bash
 git log --oneline --grep='test T'     # list the test commits
@@ -150,7 +233,10 @@ git log --oneline --grep='test T'     # list the test commits
 | `tools/build.c` | puts bootsect, setup and system together into `Image` |
 | `tools/minixfs.py` | builds MINIX v1 images (root file system) without loop mounts |
 | `tools/hello.s`, `tools/mkaout.py` | first user program, a.out ZMAGIC wrapper |
-| `rootfs-bin/` | 0.11 a.out binaries: bash (as /bin/sh), ls, cat |
+| `tools/hello-elf.c` | ELF test program (phase 10) |
+| `rootfs-bin/` | 0.11 a.out binaries: bash (as /bin/sh), ls, cat; static ELF `busybox` (phase 10) |
+| `include/elf.h`, `fs/readdir.c` | ELF definitions, `getdents64` (phase 10) |
+| `ref/linux-0.01-rm/` | Abdel Benamrouche's Linux 0.01 remake patches (reference, not built) |
 | `.vscode/` | launch.json, tasks.json for debugging |
 | `.gdbinit`, `x86-qemu.gdb` | gdb in this directory: compact gdb-dashboard layout (if installed) |
 | `plan.md` | the steps and tests up to the current commit |

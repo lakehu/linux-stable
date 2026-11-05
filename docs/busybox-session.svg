@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="620" viewBox="0 0 760 620">
+<title>BusyBox (uClibc-ng, gcc 13) on Linux 0.11: a recorded session</title>
+<style>text{font-family:"DejaVu Sans Mono",Menlo,Consolas,monospace;font-size:13px;white-space:pre}@keyframes r0{0%,2.03%{clip-path:inset(0 100% 0 0);opacity:1}6.10%,97%{clip-path:inset(0 0 0 0);opacity:1}100%{opacity:0}}.r0{animation:r0 29.5s steps(60,end) infinite}@keyframes r1{0%,8.14%{opacity:0}8.15%,97%{opacity:1}100%{opacity:0}}.r1{animation:r1 29.5s step-end infinite;opacity:0}@keyframes r2{0%,8.64%{opacity:0}8.65%,97%{opacity:1}100%{opacity:0}}.r2{animation:r2 29.5s step-end infinite;opacity:0}@keyframes r3{0%,9.15%{opacity:0}9.16%,97%{opacity:1}100%{opacity:0}}.r3{animation:r3 29.5s step-end infinite;opacity:0}@keyframes r4{0%,9.66%{opacity:0}9.67%,97%{opacity:1}100%{opacity:0}}.r4{animation:r4 29.5s step-end infinite;opacity:0}@keyframes r5{0%,10.17%{opacity:0}10.18%,97%{opacity:1}100%{opacity:0}}.r5{animation:r5 29.5s step-end infinite;opacity:0}@keyframes r6{0%,10.68%{opacity:0}10.69%,97%{opacity:1}100%{opacity:0}}.r6{animation:r6 29.5s step-end infinite;opacity:0}@keyframes r7{0%,11.19%{opacity:0}11.20%,97%{opacity:1}100%{opacity:0}}.r7{animation:r7 29.5s step-end infinite;opacity:0}@keyframes r8{0%,13.73%{clip-path:inset(0 100% 0 0);opacity:1}19.32%,97%{clip-path:inset(0 0 0 0);opacity:1}100%{opacity:0}}.r8{animation:r8 29.5s steps(33,end) infinite}@keyframes r9{0%,20.68%{opacity:0}20.69%,97%{opacity:1}100%{opacity:0}}.r9{animation:r9 29.5s step-end infinite;opacity:0}@keyframes r10{0%,21.19%{opacity:0}21.20%,97%{opacity:1}100%{opacity:0}}.r10{animation:r10 29.5s step-end infinite;opacity:0}@keyframes r11{0%,23.73%{clip-path:inset(0 100% 0 0);opacity:1}27.46%,97%{clip-path:inset(0 0 0 0);opacity:1}100%{opacity:0}}.r11{animation:r11 29.5s steps(22,end) infinite}@keyframes r12{0%,28.81%{opacity:0}28.82%,97%{opacity:1}100%{opacity:0}}.r12{animation:r12 29.5s step-end infinite;opacity:0}@keyframes r13{0%,31.36%{clip-path:inset(0 100% 0 0);opacity:1}35.42%,97%{clip-path:inset(0 0 0 0);opacity:1}100%{opacity:0}}.r13{animation:r13 29.5s steps(24,end) infinite}@keyframes r14{0%,36.78%{opacity:0}36.79%,97%{opacity:1}100%{opacity:0}}.r14{animation:r14 29.5s step-end infinite;opacity:0}@keyframes r15{0%,37.29%{opacity:0}37.30%,97%{opacity:1}100%{opacity:0}}.r15{animation:r15 29.5s step-end infinite;opacity:0}@keyframes r16{0%,37.80%{opacity:0}37.81%,97%{opacity:1}100%{opacity:0}}.r16{animation:r16 29.5s step-end infinite;opacity:0}@keyframes r17{0%,38.31%{opacity:0}38.32%,97%{opacity:1}100%{opacity:0}}.r17{animation:r17 29.5s step-end infinite;opacity:0}@keyframes r18{0%,40.85%{clip-path:inset(0 100% 0 0);opacity:1}47.46%,97%{clip-path:inset(0 0 0 0);opacity:1}100%{opacity:0}}.r18{animation:r18 29.5s steps(39,end) infinite}@keyframes r19{0%,48.81%{opacity:0}48.82%,97%{opacity:1}100%{opacity:0}}.r19{animation:r19 29.5s step-end infinite;opacity:0}@keyframes r20{0%,49.32%{opacity:0}49.33%,97%{opacity:1}100%{opacity:0}}.r20{animation:r20 29.5s step-end infinite;opacity:0}@keyframes r21{0%,49.83%{opacity:0}49.84%,97%{opacity:1}100%{opacity:0}}.r21{animation:r21 29.5s step-end infinite;opacity:0}@keyframes r22{0%,52.37%{clip-path:inset(0 100% 0 0);opacity:1}60.00%,97%{clip-path:inset(0 0 0 0);opacity:1}100%{opacity:0}}.r22{animation:r22 29.5s steps(45,end) infinite}@keyframes r23{0%,61.36%{opacity:0}61.37%,97%{opacity:1}100%{opacity:0}}.r23{animation:r23 29.5s step-end infinite;opacity:0}@keyframes r24{0%,63.90%{clip-path:inset(0 100% 0 0);opacity:1}72.54%,97%{clip-path:inset(0 0 0 0);opacity:1}100%{opacity:0}}.r24{animation:r24 29.5s steps(51,end) infinite}@keyframes r25{0%,73.90%{opacity:0}73.91%,97%{opacity:1}100%{opacity:0}}.r25{animation:r25 29.5s step-end infinite;opacity:0}@keyframes r26{0%,76.44%{clip-path:inset(0 100% 0 0);opacity:1}82.71%,97%{clip-path:inset(0 0 0 0);opacity:1}100%{opacity:0}}.r26{animation:r26 29.5s steps(37,end) infinite}@keyframes r27{0%,84.07%{opacity:0}84.08%,97%{opacity:1}100%{opacity:0}}.r27{animation:r27 29.5s step-end infinite;opacity:0}@keyframes r28{0%,84.58%{opacity:0}84.59%,97%{opacity:1}100%{opacity:0}}.r28{animation:r28 29.5s step-end infinite;opacity:0}@keyframes r29{0%,85.08%{opacity:0}85.09%,97%{opacity:1}100%{opacity:0}}.r29{animation:r29 29.5s step-end infinite;opacity:0}@keyframes r30{0%,85.59%{opacity:0}85.60%,97%{opacity:1}100%{opacity:0}}.r30{animation:r30 29.5s step-end infinite;opacity:0}@keyframes r31{0%,87.46%{opacity:0}87.47%,97%{opacity:1}100%{opacity:0}}.r31{animation:r31 29.5s step-end infinite;opacity:0}</style>
+<rect width="760" height="620" rx="8" fill="#2e3436"/>
+<rect width="760" height="26" rx="8" fill="#555753"/><rect y="18" width="760" height="8" fill="#555753"/>
+<circle cx="16" cy="13" r="5" fill="#ef2929"/><circle cx="32" cy="13" r="5" fill="#fcaf3e"/><circle cx="48" cy="13" r="5" fill="#8ae234"/>
+<text x="380" y="17" fill="#eeeeec" text-anchor="middle" style="font-size:12px">Linux 0.11 (elf-uclibc): static ELF BusyBox from the RAM disk</text>
+<text class="r0" x="16" y="54" fill="#8ae234">$ make run          # QEMU, VGA text console in the terminal</text>
+<text class="r1" x="16" y="71" fill="#a8b8c8">Linux 0.11 built Nov  5 2026 17:44:55 with gcc 9.4.0</text>
+<text class="r2" x="16" y="88" fill="#a8b8c8">Ram disk: 1048576 bytes, starting at 0x400000</text>
+<text class="r3" x="16" y="105" fill="#a8b8c8">Loading 1048576 bytes into ram disk... done</text>
+<text class="r4" x="16" y="122" fill="#a8b8c8">489/1024 free blocks</text>
+<text class="r5" x="16" y="139" fill="#a8b8c8">17/32 free inodes</text>
+<text class="r6" x="16" y="156" fill="#a8b8c8">3449 buffers = 3531776 bytes buffer space</text>
+<text class="r7" x="16" y="173" fill="#a8b8c8">Free mem: 11403264 bytes</text>
+<text class="r8" x="16" y="190" fill="#fce94f">bash# busybox | busybox head -n 1</text>
+<text class="r9" x="16" y="207" fill="#d3d7cf">BusyBox v1.37.0 (2026-11-05 17:23:10 CST, gcc 13.3.0, uClibc-ng 1.0.59) multi-ca</text>
+<text class="r10" x="16" y="224" fill="#d3d7cf">ll binary.</text>
+<text class="r11" x="16" y="241" fill="#fce94f">bash# busybox uname -a</text>
+<text class="r12" x="16" y="258" fill="#d3d7cf">Linux (none) 0.11 Nov  5 2026 17:44:56 i386</text>
+<text class="r13" x="16" y="275" fill="#fce94f">bash# busybox ls -l /bin</text>
+<text class="r14" x="16" y="292" fill="#d3d7cf">-rwxr-xr-x    1 0        0           152560 Jan  1  1970 busybox</text>
+<text class="r15" x="16" y="309" fill="#d3d7cf">-rwxr-xr-x    1 0        0             5120 Jan  1  1970 hello</text>
+<text class="r16" x="16" y="326" fill="#d3d7cf">-rwxr-xr-x    1 0        0             8996 Jan  1  1970 hello-elf</text>
+<text class="r17" x="16" y="343" fill="#d3d7cf">-rwxr-xr-x    1 0        0           283652 Jan  1  1970 sh</text>
+<text class="r18" x="16" y="360" fill="#fce94f">bash# hello-elf a b | busybox head -n 3</text>
+<text class="r19" x="16" y="377" fill="#d3d7cf">hello from a static ELF program, built Nov  5 2026 17:44:59 with gcc 9.4.0</text>
+<text class="r20" x="16" y="394" fill="#d3d7cf">edx at entry: 0</text>
+<text class="r21" x="16" y="411" fill="#d3d7cf">argc: 3</text>
+<text class="r22" x="16" y="428" fill="#fce94f">bash# busybox cp /etc/rc /r; busybox ls -l /r</text>
+<text class="r23" x="16" y="445" fill="#d3d7cf">-rw-r--r--    1 0        0               47 Nov  5 09:47 /r</text>
+<text class="r24" x="16" y="462" fill="#fce94f">bash# busybox cat /r | busybox wc -c; busybox rm /r</text>
+<text class="r25" x="16" y="479" fill="#d3d7cf">47</text>
+<text class="r26" x="16" y="496" fill="#fce94f">bash# busybox seq 3 | busybox sort -r</text>
+<text class="r27" x="16" y="513" fill="#d3d7cf">3</text>
+<text class="r28" x="16" y="530" fill="#d3d7cf">2</text>
+<text class="r29" x="16" y="547" fill="#d3d7cf">1</text>
+<text class="r30" x="16" y="564" fill="#d3d7cf">bash#</text>
+<text class="r31" x="16" y="581" fill="#fce94f">bash# </text>
+</svg>
