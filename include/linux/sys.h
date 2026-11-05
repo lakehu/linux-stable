@@ -71,7 +71,13 @@ extern int sys_ssetmask();
 extern int sys_setreuid();
 extern int sys_setregid();
 
-fn_ptr sys_call_table[] = { sys_setup, sys_exit, sys_fork, sys_read,
+/*
+ * Linux i386 system call numbers. Numbers without an entry are NULL;
+ * system_call returns -ENOSYS for them (like the 320-entry table with
+ * sys_null in the Linux 0.01 remake, patch_rm_3.1/3.3). Entries after
+ * the 0.11 set use designated initializers: [nr] = function.
+ */
+fn_ptr sys_call_table[256] = { sys_setup, sys_exit, sys_fork, sys_read,
 sys_write, sys_open, sys_close, sys_waitpid, sys_creat, sys_link,
 sys_unlink, sys_execve, sys_chdir, sys_time, sys_mknod, sys_chmod,
 sys_chown, sys_break, sys_stat, sys_lseek, sys_getpid, sys_mount,

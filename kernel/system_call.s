@@ -58,7 +58,8 @@ sa_mask = 4
 sa_flags = 8
 sa_restorer = 12
 
-nr_system_calls = 72
+nr_system_calls = 256		# size of sys_call_table[] (include/linux/sys.h)
+ENOSYS = 38
 
 /*
  * Ok, I get parallel printer interrupts while using the floppy for some
@@ -70,7 +71,7 @@ nr_system_calls = 72
 
 .align 2
 bad_sys_call:
-	movl $-1,%eax
+	movl $-ENOSYS,%eax
 	iret
 .align 2
 reschedule:
@@ -80,6 +81,8 @@ reschedule:
 _system_call:
 	cmpl $nr_system_calls-1,%eax
 	ja bad_sys_call
+	cmpl $0,%ss:_sys_call_table(,%eax,4)	# not implemented? (ds is
+	je bad_sys_call				# still the user's, ss is 0x10)
 	push %ds
 	push %es
 	push %fs
