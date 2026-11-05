@@ -96,7 +96,8 @@ tools/hello-elf: tools/hello-elf.c
 # rootfs-bin/busybox is a static i386 ELF BusyBox 1.37.0 (uClibc-ng 1.0.59,
 # no threads/TLS, linked at 0), built with Buildroot 2025.02
 # configs/oldlinux_i386_busybox_defconfig (without its 0.01-only uClibc
-# crt1 patch) and stripped.
+# crt1 patch) and stripped; 'busybox' shows the build date, gcc and
+# uClibc-ng versions in its banner.
 ROOTFS_BLOCKS = 1024
 ROOTFS_PROGS = rootfs-bin/sh rootfs-bin/ls rootfs-bin/cat rootfs-bin/busybox
 rootfs.img: tools/minixfs.py tools/hello tools/hello-elf $(ROOTFS_PROGS)
