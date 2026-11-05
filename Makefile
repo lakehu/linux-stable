@@ -93,8 +93,12 @@ tools/hello-elf: tools/hello-elf.c
 # extract' from the 0.11 hard disk image of oldlinux-0.11 (yuan-xy/Linux-0.11,
 # hdc-0.11.img, partition 1 at byte offset 512). tools/hello stays in as
 # /bin/hello, the ELF test program tools/hello-elf is /bin/hello-elf.
+# rootfs-bin/busybox is a static i386 ELF BusyBox 1.37.0 (uClibc-ng 1.0.59,
+# no threads/TLS, linked at 0), built with Buildroot 2025.02
+# configs/oldlinux_i386_busybox_defconfig (without its 0.01-only uClibc
+# crt1 patch) and stripped.
 ROOTFS_BLOCKS = 1024
-ROOTFS_PROGS = rootfs-bin/sh rootfs-bin/ls rootfs-bin/cat
+ROOTFS_PROGS = rootfs-bin/sh rootfs-bin/ls rootfs-bin/cat rootfs-bin/busybox
 rootfs.img: tools/minixfs.py tools/hello tools/hello-elf $(ROOTFS_PROGS)
 	python3 tools/minixfs.py rootfs.img $(ROOTFS_BLOCKS) \
 		dir:/bin dir:/dev dir:/etc dir:/usr dir:/usr/bin dir:/usr/root \
@@ -103,6 +107,7 @@ rootfs.img: tools/minixfs.py tools/hello tools/hello-elf $(ROOTFS_PROGS)
 		file:/bin/sh=rootfs-bin/sh \
 		file:/bin/hello=tools/hello \
 		file:/bin/hello-elf=tools/hello-elf \
+		file:/bin/busybox=rootfs-bin/busybox \
 		file:/usr/bin/ls=rootfs-bin/ls \
 		file:/usr/bin/cat=rootfs-bin/cat
 
