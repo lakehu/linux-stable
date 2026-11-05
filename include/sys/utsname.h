@@ -11,6 +11,16 @@ struct utsname {
 	char machine[9];
 };
 
+/* Linux struct new_utsname, for the uname system call 122 */
+struct new_utsname {
+	char sysname[65];
+	char nodename[65];
+	char release[65];
+	char version[65];
+	char machine[65];
+	char domainname[65];
+};
+
 extern int uname(struct utsname * utsbuf);
 
 #endif

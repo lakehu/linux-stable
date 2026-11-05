@@ -227,6 +227,26 @@ int sys_uname(struct utsname * name)
 	return 0;
 }
 
+/*
+ * uname (122) for Linux programs (uClibc-ng's uname() and BusyBox
+ * 'uname'): struct new_utsname with 65-byte fields. The 0.11 one above
+ * (59, 9-byte fields) stays for the 0.11 libc.
+ */
+int sys_newuname(struct new_utsname * name)
+{
+	static struct new_utsname thisname = {
+		"Linux", "(none)", "0.11", __DATE__ " " __TIME__, "i386",
+		"(none)"
+	};
+	int i;
+
+	if (!name) return -EFAULT;
+	verify_area(name,sizeof *name);
+	for(i=0;i<sizeof *name;i++)
+		put_fs_byte(((char *) &thisname)[i],i+(char *) name);
+	return 0;
+}
+
 int sys_umask(int mask)
 {
 	int old = current->umask;
