@@ -80,21 +80,29 @@ tools/hello: tools/hello.s tools/mkaout.py
 	python3 tools/mkaout.py tools/hello.bin tools/hello
 	rm -f tools/hello.o tools/hello.elf tools/hello.bin
 
+# ELF test program (static, no libc, linked at 0 for the 64MB task segment)
+tools/hello-elf: tools/hello-elf.c
+	gcc -m32 -static -nostdlib -ffreestanding -fno-pie -no-pie -O2 \
+		-fno-asynchronous-unwind-tables -fno-stack-protector \
+		-Wl,-Ttext-segment=0 -Wl,--build-id=none -Wl,-e,_start \
+		-o tools/hello-elf tools/hello-elf.c
+
 # Tiny root file system (MINIX v1, 512 blocks = the RAM disk size): what
 # init() needs, a shell, ls and cat. The programs in rootfs-bin/ are 0.11
 # a.out binaries (bash as sh), extracted once with 'tools/minixfs.py
 # extract' from the 0.11 hard disk image of oldlinux-0.11 (yuan-xy/Linux-0.11,
 # hdc-0.11.img, partition 1 at byte offset 512). tools/hello stays in as
-# /bin/hello.
+# /bin/hello, the ELF test program tools/hello-elf is /bin/hello-elf.
 ROOTFS_BLOCKS = 512
 ROOTFS_PROGS = rootfs-bin/sh rootfs-bin/ls rootfs-bin/cat
-rootfs.img: tools/minixfs.py tools/hello $(ROOTFS_PROGS)
+rootfs.img: tools/minixfs.py tools/hello tools/hello-elf $(ROOTFS_PROGS)
 	python3 tools/minixfs.py rootfs.img $(ROOTFS_BLOCKS) \
 		dir:/bin dir:/dev dir:/etc dir:/usr dir:/usr/bin dir:/usr/root \
 		chr:/dev/tty0=4,0 \
 		"text:/etc/rc=# opened by init as stdin of the first /bin/sh\n" \
 		file:/bin/sh=rootfs-bin/sh \
 		file:/bin/hello=tools/hello \
+		file:/bin/hello-elf=tools/hello-elf \
 		file:/usr/bin/ls=rootfs-bin/ls \
 		file:/usr/bin/cat=rootfs-bin/cat
 
@@ -152,7 +160,7 @@ tmp.s:	boot/bootsect.s tools/system
 
 clean:
 	rm -f Image rootfs.img System.map tmp_make core boot/bootsect boot/setup
-	rm -f init/*.o tools/system tools/build tools/hello boot/*.o
+	rm -f init/*.o tools/system tools/build tools/hello tools/hello-elf boot/*.o
 	(cd mm;make clean)
 	(cd fs;make clean)
 	(cd kernel;make clean)

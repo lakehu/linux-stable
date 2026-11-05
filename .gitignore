@@ -10,4 +10,5 @@ boot/bootsect
 boot/setup
 kernel/chr_drv/keyboard.s
 tools/hello
+tools/hello-elf
 rootfs.img
