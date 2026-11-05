@@ -777,3 +777,53 @@ int sys_link(const char * oldname, const char * newname)
 	iput(oldinode);
 	return 0;
 }
+
+/*
+ * rename (38), for BusyBox mv: 0.11 had only a stub returning -ENOSYS.
+ * Simple version for files: link the new name, then unlink the old one
+ * (an existing new name is replaced). Directories would also need their
+ * ".." entry changed, so they are refused.
+ */
+int sys_rename(const char * oldname, const char * newname)
+{
+	struct m_inode * inode, * new;
+	int error;
+
+	if (!(inode = namei(oldname)))
+		return -ENOENT;
+	if (S_ISDIR(inode->i_mode)) {
+		iput(inode);
+		return -EPERM;
+	}
+	if ((new = namei(newname))) {
+		if (new == inode) {		/* same file */
+			iput(new);
+			iput(inode);
+			return 0;
+		}
+		iput(new);
+		if ((error = sys_unlink(newname))) {
+			iput(inode);
+			return error;
+		}
+	}
+	iput(inode);
+	if ((error = sys_link(oldname, newname)))
+		return error;
+	return sys_unlink(oldname);
+}
+
+/*
+ * renameat2 (353): uClibc-ng's rename() uses it. Only the rename()
+ * case: both directory fds AT_FDCWD, no flags. Called through
+ * _sys_renameat2 in kernel/system_call.s (5 arguments).
+ */
+#define AT_FDCWD	-100
+
+int do_renameat2(int olddfd, const char * oldname, int newdfd,
+	const char * newname, unsigned int flags)
+{
+	if (olddfd != AT_FDCWD || newdfd != AT_FDCWD || flags)
+		return -EINVAL;
+	return sys_rename(oldname, newname);
+}

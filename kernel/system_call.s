@@ -58,7 +58,7 @@ sa_mask = 4
 sa_flags = 8
 sa_restorer = 12
 
-nr_system_calls = 256		# size of sys_call_table[] (include/linux/sys.h)
+nr_system_calls = 384		# size of sys_call_table[] (include/linux/sys.h)
 ENOSYS = 38
 
 /*
@@ -68,6 +68,7 @@ ENOSYS = 38
 .globl _system_call,_sys_fork,_timer_interrupt,_sys_execve
 .globl _hd_interrupt,_floppy_interrupt,_parallel_interrupt
 .globl _device_not_available, _coprocessor_error
+.globl _sys_renameat2
 
 .align 2
 bad_sys_call:
@@ -205,6 +206,21 @@ _sys_execve:
 	pushl %eax
 	call _do_execve
 	addl $4,%esp
+	ret
+
+/*
+ * System calls with 5 arguments: system_call pushes only %ebx, %ecx and
+ * %edx; the 4th and 5th arguments are still in the user's %esi and %edi.
+ */
+.align 2
+_sys_renameat2:
+	pushl %edi		# 5th argument
+	pushl %esi		# 4th
+	pushl 20(%esp)		# %edx, 3rd
+	pushl 20(%esp)		# %ecx, 2nd
+	pushl 20(%esp)		# %ebx, 1st
+	call _do_renameat2
+	addl $20,%esp
 	ret
 
 .align 2

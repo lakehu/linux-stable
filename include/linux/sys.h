@@ -75,6 +75,7 @@ extern int sys_lstat64();
 extern int sys_fstat64();
 extern int sys_getdents64();
 extern int sys_newuname();
+extern int sys_renameat2();
 
 /*
  * Linux i386 system call numbers. Numbers without an entry are NULL;
@@ -82,7 +83,7 @@ extern int sys_newuname();
  * sys_null in the Linux 0.01 remake, patch_rm_3.1/3.3). Entries after
  * the 0.11 set use designated initializers: [nr] = function.
  */
-fn_ptr sys_call_table[256] = { sys_setup, sys_exit, sys_fork, sys_read,
+fn_ptr sys_call_table[384] = { sys_setup, sys_exit, sys_fork, sys_read,
 sys_write, sys_open, sys_close, sys_waitpid, sys_creat, sys_link,
 sys_unlink, sys_execve, sys_chdir, sys_time, sys_mknod, sys_chmod,
 sys_chown, sys_break, sys_stat, sys_lseek, sys_getpid, sys_mount,
@@ -97,4 +98,5 @@ sys_getpgrp, sys_setsid, sys_sigaction, sys_sgetmask, sys_ssetmask,
 sys_setreuid,sys_setregid,
 [122] = sys_newuname,
 [195] = sys_stat64, [196] = sys_lstat64, [197] = sys_fstat64,
-[220] = sys_getdents64 };
+[220] = sys_getdents64,
+[353] = sys_renameat2 };
