@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" xml:space="preserve" width="900" height="622" viewBox="0 0 900 622">
+<title>gdb debugging Linux 0.11 in QEMU (recorded session, animated)</title>
+<style>
+text{font-family:"DejaVu Sans Mono",Menlo,Consolas,monospace;font-size:13px;white-space:pre}
+@keyframes r0{0%,2.24%{clip-path:inset(0 100% 0 0);opacity:1}6.72%,97%{clip-path:inset(0 0 0 0);opacity:1}100%{opacity:0}}
+.r0{animation:r0 35.7s steps(72,end) infinite}
+@keyframes r1{0%,8.41%{clip-path:inset(0 100% 0 0);opacity:1}11.21%,97%{clip-path:inset(0 0 0 0);opacity:1}100%{opacity:0}}
+.r1{animation:r1 35.7s steps(37,end) infinite}
+@keyframes r2{0%,12.89%{clip-path:inset(0 100% 0 0);opacity:1}17.09%,97%{clip-path:inset(0 0 0 0);opacity:1}100%{opacity:0}}
+.r2{animation:r2 35.7s steps(26,end) infinite}
+@keyframes r3{0%,18.07%{opacity:0}18.08%,97%{opacity:1}100%{opacity:0}}
+.r3{animation:r3 35.7s linear infinite}
+@keyframes r4{0%,18.91%{opacity:0}18.92%,97%{opacity:1}100%{opacity:0}}
+.r4{animation:r4 35.7s linear infinite}
+@keyframes r5{0%,19.42%{opacity:0}19.43%,97%{opacity:1}100%{opacity:0}}
+.r5{animation:r5 35.7s linear infinite}
+@keyframes r6{0%,22.44%{clip-path:inset(0 100% 0 0);opacity:1}26.14%,97%{clip-path:inset(0 0 0 0);opacity:1}100%{opacity:0}}
+.r6{animation:r6 35.7s steps(23,end) infinite}
+@keyframes r7{0%,27.12%{opacity:0}27.13%,97%{opacity:1}100%{opacity:0}}
+.r7{animation:r7 35.7s linear infinite}
+@keyframes r8{0%,30.15%{clip-path:inset(0 100% 0 0);opacity:1}32.33%,97%{clip-path:inset(0 0 0 0);opacity:1}100%{opacity:0}}
+.r8{animation:r8 35.7s steps(14,end) infinite}
+@keyframes r9{0%,33.31%{opacity:0}33.32%,97%{opacity:1}100%{opacity:0}}
+.r9{animation:r9 35.7s linear infinite}
+@keyframes r10{0%,33.82%{opacity:0}33.83%,97%{opacity:1}100%{opacity:0}}
+.r10{animation:r10 35.7s linear infinite}
+@keyframes r11{0%,36.85%{clip-path:inset(0 100% 0 0);opacity:1}38.36%,97%{clip-path:inset(0 0 0 0);opacity:1}100%{opacity:0}}
+.r11{animation:r11 35.7s steps(10,end) infinite}
+@keyframes r12{0%,39.34%{opacity:0}39.35%,97%{opacity:1}100%{opacity:0}}
+.r12{animation:r12 35.7s linear infinite}
+@keyframes r13{0%,42.36%{clip-path:inset(0 100% 0 0);opacity:1}43.88%,97%{clip-path:inset(0 0 0 0);opacity:1}100%{opacity:0}}
+.r13{animation:r13 35.7s steps(10,end) infinite}
+@keyframes r14{0%,44.86%{opacity:0}44.87%,97%{opacity:1}100%{opacity:0}}
+.r14{animation:r14 35.7s linear infinite}
+@keyframes r15{0%,47.88%{clip-path:inset(0 100% 0 0);opacity:1}52.26%,97%{clip-path:inset(0 0 0 0);opacity:1}100%{opacity:0}}
+.r15{animation:r15 35.7s steps(27,end) infinite}
+@keyframes r16{0%,53.24%{opacity:0}53.25%,97%{opacity:1}100%{opacity:0}}
+.r16{animation:r16 35.7s linear infinite}
+@keyframes r17{0%,56.26%{clip-path:inset(0 100% 0 0);opacity:1}58.45%,97%{clip-path:inset(0 0 0 0);opacity:1}100%{opacity:0}}
+.r17{animation:r17 35.7s steps(14,end) infinite}
+@keyframes r18{0%,59.43%{opacity:0}59.44%,97%{opacity:1}100%{opacity:0}}
+.r18{animation:r18 35.7s linear infinite}
+@keyframes r19{0%,59.93%{opacity:0}59.94%,97%{opacity:1}100%{opacity:0}}
+.r19{animation:r19 35.7s linear infinite}
+@keyframes r20{0%,62.96%{clip-path:inset(0 100% 0 0);opacity:1}64.47%,97%{clip-path:inset(0 0 0 0);opacity:1}100%{opacity:0}}
+.r20{animation:r20 35.7s steps(10,end) infinite}
+@keyframes r21{0%,65.45%{opacity:0}65.46%,97%{opacity:1}100%{opacity:0}}
+.r21{animation:r21 35.7s linear infinite}
+@keyframes r22{0%,68.48%{clip-path:inset(0 100% 0 0);opacity:1}72.01%,97%{clip-path:inset(0 0 0 0);opacity:1}100%{opacity:0}}
+.r22{animation:r22 35.7s steps(22,end) infinite}
+@keyframes r23{0%,72.99%{opacity:0}73.00%,97%{opacity:1}100%{opacity:0}}
+.r23{animation:r23 35.7s linear infinite}
+@keyframes r24{0%,76.02%{clip-path:inset(0 100% 0 0);opacity:1}80.39%,97%{clip-path:inset(0 0 0 0);opacity:1}100%{opacity:0}}
+.r24{animation:r24 35.7s steps(27,end) infinite}
+@keyframes r25{0%,81.37%{opacity:0}81.38%,97%{opacity:1}100%{opacity:0}}
+.r25{animation:r25 35.7s linear infinite}
+@keyframes r26{0%,81.87%{opacity:0}81.88%,97%{opacity:1}100%{opacity:0}}
+.r26{animation:r26 35.7s linear infinite}
+@keyframes r27{0%,84.90%{clip-path:inset(0 100% 0 0);opacity:1}86.07%,97%{clip-path:inset(0 0 0 0);opacity:1}100%{opacity:0}}
+.r27{animation:r27 35.7s steps(8,end) infinite}
+@keyframes r28{0%,87.06%{opacity:0}87.07%,97%{opacity:1}100%{opacity:0}}
+.r28{animation:r28 35.7s linear infinite}
+@keyframes r29{0%,87.56%{opacity:0}87.57%,97%{opacity:1}100%{opacity:0}}
+.r29{animation:r29 35.7s linear infinite}
+@keyframes r30{0%,88.06%{opacity:0}88.07%,97%{opacity:1}100%{opacity:0}}
+.r30{animation:r30 35.7s linear infinite}
+@keyframes r31{0%,88.57%{opacity:0}88.58%,97%{opacity:1}100%{opacity:0}}
+.r31{animation:r31 35.7s linear infinite}
+</style>
+<rect width="900" height="622" rx="10" fill="#1e1e1e"/>
+<rect width="900" height="28" rx="10" fill="#3c3c3c"/><rect y="18" width="900" height="10" fill="#3c3c3c"/>
+<circle cx="18" cy="14" r="6" fill="#ff5f56"/><circle cx="38" cy="14" r="6" fill="#ffbd2e"/><circle cx="58" cy="14" r="6" fill="#27c93f"/>
+<text x="450" y="19" text-anchor="middle" fill="#cccccc" style="font-size:12px">gdb - Linux 0.11 in QEMU (make debug)</text>
+<text class="r0" x="18" y="54" fill="#8ae234">$ make debug            # terminal 1: QEMU waits with -S -gdb tcp::41234</text>
+<text class="r1" x="18" y="71" fill="#8ae234">$ gdb -nx tools/system   # terminal 2</text>
+<text class="r2" x="18" y="88" fill="#fce94f">(gdb) target remote :41234</text>
+<text class="r3" x="18" y="105" fill="#888a85"># connected: CPU stopped at the reset entry (real mode: the name hd_out is a gdb artefact)</text>
+<text class="r4" x="18" y="122" fill="#d3d7cf">0x0000fff0 in hd_out (drive=0, nsect=0, sect=0, head=0, cyl=0, cmd=0, intr_addr=0x0 &lt;startup_32&gt;) at hd.c:203</text>
+<text class="r5" x="18" y="139" fill="#d3d7cf">203             outb_p(hd_info[drive].wpcom&gt;&gt;2,++port);</text>
+<text class="r6" x="18" y="156" fill="#fce94f">(gdb) hbreak startup_32</text>
+<text class="r7" x="18" y="173" fill="#d3d7cf">Hardware assisted breakpoint 1 at 0x0: file boot/head.s, line 18.</text>
+<text class="r8" x="18" y="190" fill="#fce94f">(gdb) continue</text>
+<text class="r9" x="18" y="207" fill="#d3d7cf">Breakpoint 1, startup_32 () at boot/head.s:18</text>
+<text class="r10" x="18" y="224" fill="#d3d7cf">18              movl $0x10,%eax</text>
+<text class="r11" x="18" y="241" fill="#fce94f">(gdb) next</text>
+<text class="r12" x="18" y="258" fill="#d3d7cf">19              mov %ax,%ds</text>
+<text class="r13" x="18" y="275" fill="#fce94f">(gdb) next</text>
+<text class="r14" x="18" y="292" fill="#d3d7cf">20              mov %ax,%es</text>
+<text class="r15" x="18" y="309" fill="#fce94f">(gdb) break init/main.c:131</text>
+<text class="r16" x="18" y="326" fill="#d3d7cf">Breakpoint 2 at 0x67d5: file init/main.c, line 131.</text>
+<text class="r17" x="18" y="343" fill="#fce94f">(gdb) continue</text>
+<text class="r18" x="18" y="360" fill="#d3d7cf">Breakpoint 2, main () at init/main.c:131</text>
+<text class="r19" x="18" y="377" fill="#d3d7cf">131             printk(&quot;Linux 0.11 built %s %s with gcc %s\n\r&quot;, __DATE__, __TIME__, __VERSION__);</text>
+<text class="r20" x="18" y="394" fill="#fce94f">(gdb) next</text>
+<text class="r21" x="18" y="411" fill="#d3d7cf">132             time_init();</text>
+<text class="r22" x="18" y="428" fill="#fce94f">(gdb) print memory_end</text>
+<text class="r23" x="18" y="445" fill="#d3d7cf">$1 = 16777216</text>
+<text class="r24" x="18" y="462" fill="#fce94f">(gdb) info registers cr0 cs</text>
+<text class="r25" x="18" y="479" fill="#d3d7cf">cr0            0x80000013          [ PG ET MP PE ]</text>
+<text class="r26" x="18" y="496" fill="#d3d7cf">cs             0x8                 8</text>
+<text class="r27" x="18" y="513" fill="#fce94f">(gdb) bt</text>
+<text class="r28" x="18" y="530" fill="#d3d7cf">#0  main () at init/main.c:132</text>
+<text class="r29" x="18" y="547" fill="#d3d7cf">#1  0x00005412 in after_page_tables () at boot/head.s:141</text>
+<text class="r30" x="18" y="564" fill="#d3d7cf">#2  0x00000000 in ?? ()</text>
+<text class="r31" x="18" y="581" fill="#d3d7cf">Backtrace stopped: previous frame inner to this frame (corrupt stack?)</text>
+</svg>

@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="420" viewBox="0 0 860 420" font-family="DejaVu Sans, Arial, sans-serif" font-size="13">
+  <title>Debugging Linux 0.11 in QEMU with gdb or VS Code</title>
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#444"/>
+    </marker>
+  </defs>
+  <rect width="860" height="420" fill="#ffffff"/>
+  <text x="430" y="30" text-anchor="middle" font-size="18" font-weight="bold" fill="#222">make debug: QEMU + gdb (+ VS Code)</text>
+
+  <!-- VS Code -->
+  <rect x="30" y="60" width="250" height="150" rx="10" fill="#e8eefc" stroke="#555"/>
+  <text x="155" y="84" text-anchor="middle" font-weight="bold">VS Code (C/C++, cppdbg)</text>
+  <g font-size="12" fill="#222">
+    <text x="44" y="108">F5: "(gdb) Linux 0.11 in QEMU"</text>
+    <text x="44" y="128">preLaunchTask "run":</text>
+    <text x="56" y="146">kill run qemu, make debug</text>
+    <text x="44" y="166">gdb -nx, symbols: tools/system</text>
+    <text x="44" y="186">after connect: hbreak startup_32</text>
+  </g>
+
+  <!-- gdb -->
+  <rect x="320" y="60" width="200" height="150" rx="10" fill="#fff4d6" stroke="#555"/>
+  <text x="420" y="84" text-anchor="middle" font-weight="bold">gdb 9.2</text>
+  <g font-size="12" fill="#222">
+    <text x="334" y="108">or by hand:</text>
+    <text x="334" y="126" font-family="DejaVu Sans Mono, monospace">gdb -nx tools/system</text>
+    <text x="334" y="144" font-family="DejaVu Sans Mono, monospace">target remote :41234</text>
+    <text x="334" y="162" font-family="DejaVu Sans Mono, monospace">hbreak startup_32</text>
+    <text x="334" y="180" font-family="DejaVu Sans Mono, monospace">break init/main.c:131</text>
+  </g>
+
+  <!-- QEMU -->
+  <rect x="580" y="60" width="250" height="250" rx="10" fill="#e3f1df" stroke="#555"/>
+  <text x="705" y="84" text-anchor="middle" font-weight="bold">qemu-system-i386 7.1</text>
+  <g font-size="12" fill="#222">
+    <text x="594" y="108">-S  (CPU stopped at f000:fff0)</text>
+    <text x="594" y="128">-gdb tcp::41234   (gdb server)</text>
+    <text x="594" y="148">-monitor unix:qemu-monitor.sock</text>
+    <text x="594" y="168">-display curses   (VGA text in</text>
+    <text x="606" y="186">the terminal of 'make debug')</text>
+    <text x="594" y="206">-drive file=Image,if=floppy</text>
+    <text x="594" y="226">-boot a -no-reboot -no-shutdown</text>
+  </g>
+  <rect x="600" y="244" width="210" height="48" rx="6" fill="#ffffff" stroke="#777"/>
+  <text x="705" y="264" text-anchor="middle" font-size="12">guest: Linux 0.11</text>
+  <text x="705" y="282" text-anchor="middle" font-size="12">Image (floppy, 1.44 MB)</text>
+
+  <!-- monitor terminal -->
+  <rect x="320" y="250" width="200" height="110" rx="10" fill="#f1e6f7" stroke="#555"/>
+  <text x="420" y="274" text-anchor="middle" font-weight="bold">terminal 2</text>
+  <g font-size="12" fill="#222" font-family="DejaVu Sans Mono, monospace">
+    <text x="334" y="298">nc -U qemu-monitor.sock</text>
+    <text x="334" y="318">(qemu) info registers</text>
+    <text x="334" y="338">(qemu) quit</text>
+  </g>
+
+  <!-- arrows -->
+  <g stroke="#444" stroke-width="1.6" fill="none" marker-end="url(#a)">
+    <line x1="280" y1="135" x2="318" y2="135"/>
+    <line x1="520" y1="135" x2="578" y2="135"/>
+    <line x1="520" y1="305" x2="578" y2="275"/>
+  </g>
+  <g font-size="11" fill="#444">
+    <text x="284" y="128">GDB/MI</text>
+    <text x="524" y="128">TCP 41234</text>
+    <text x="524" y="318">unix socket</text>
+  </g>
+
+  <!-- notes -->
+  <g font-size="12" fill="#333">
+    <text x="30" y="250">Notes</text>
+    <text x="30" y="270">- C symbols have a leading underscore:</text>
+    <text x="42" y="288">_main, _schedule (-fleading-underscore)</text>
+    <text x="30" y="308">- real mode (BIOS, bootsect, setup): no</text>
+    <text x="42" y="326">symbols, address = ($cs&lt;&lt;4)+$eip</text>
+    <text x="30" y="346">- after changing CFLAGS/AS: make clean</text>
+    <text x="30" y="366">- kernel built with -O: some C variables</text>
+    <text x="42" y="384">are "optimized out" while stepping</text>
+  </g>
+</svg>

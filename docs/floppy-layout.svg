@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="300" viewBox="0 0 860 300" font-family="DejaVu Sans, Arial, sans-serif" font-size="12">
+  <title>Image: 1.44 MB boot floppy with kernel and root file system</title>
+  <rect width="860" height="300" fill="#ffffff"/>
+  <text x="430" y="28" text-anchor="middle" font-size="17" font-weight="bold" fill="#222">Image  =  one 1.44 MB floppy (make)</text>
+  <text x="430" y="48" text-anchor="middle" fill="#666">scale: 1 px = 2 KB  (1474560 bytes = FLOPPY_DISK_SIZE, sparse file)</text>
+
+  <!-- scale: x = 40 + KB/2 ; 1440 KB -> 760 px wide (40..760+40=800) -->
+  <g stroke="#555" stroke-width="1">
+    <rect x="40"  y="80" width="4"   height="70" fill="#9ec5ea"/>   <!-- bootsect 0.5 KB -->
+    <rect x="44"  y="80" width="4"   height="70" fill="#6fa8dc"/>   <!-- setup 2 KB -->
+    <rect x="48"  y="80" width="62"  height="70" fill="#93c47d"/>   <!-- kernel ~123 KB -->
+    <rect x="110" y="80" width="58"  height="70" fill="#f3f3f3"/>   <!-- gap to 256 KB -->
+    <rect x="168" y="80" width="256" height="70" fill="#f6b26b"/>   <!-- rootfs 512 KB -->
+    <rect x="424" y="80" width="376" height="70" fill="#f3f3f3"/>   <!-- unused -->
+  </g>
+
+  <!-- offsets -->
+  <g fill="#333" font-size="11" text-anchor="middle">
+    <text x="40"  y="168">0</text>
+    <text x="110" y="168">~125 KB</text>
+    <text x="168" y="168">256 KB</text>
+    <text x="424" y="168">768 KB</text>
+    <text x="800" y="168">1440 KB</text>
+  </g>
+
+  <!-- legend instead of leader lines (the first parts are only a few px wide) -->
+  <g fill="#222" font-size="11">
+    <rect x="40"  y="186" width="12" height="12" fill="#9ec5ea" stroke="#555"/><text x="58"  y="196">bootsect, sector 1 (512 B, 0xAA55, root dev at 508)</text>
+    <rect x="370" y="186" width="12" height="12" fill="#6fa8dc" stroke="#555"/><text x="388" y="196">setup, sectors 2-5 (2 KB)</text>
+    <rect x="560" y="186" width="12" height="12" fill="#93c47d" stroke="#555"/><text x="578" y="196">system: head.s + kernel</text>
+  </g>
+  <g fill="#222">
+    <text x="176" y="112" font-size="12" font-weight="bold">rootfs.img (MINIX v1, 512 blocks)</text>
+    <text x="176" y="132" font-size="11">/bin/sh /bin/hello /usr/bin/ls,cat</text>
+    <text x="176" y="146" font-size="11">/dev/tty0 /etc/rc</text>
+  </g>
+
+  <!-- what happens at boot -->
+  <g fill="#333" font-size="12">
+    <text x="40" y="230">bootsect.s reads sectors 1..: setup to 0x90200, system to 0x10000 (setup moves it to 0).</text>
+    <text x="40" y="250">rd_load() (RAMDISK=512, ROOT_DEV=FLOPPY) finds the MINIX superblock at block 256, copies the</text>
+    <text x="40" y="270">file system into the 512 KB RAM disk at 0x400000 and mounts it as root (0x101).</text>
+  </g>
+</svg>

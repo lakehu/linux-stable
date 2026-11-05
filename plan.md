@@ -113,3 +113,9 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | 8.7 | tools/minixfs.py: extract files from an existing MINIX image | `minixfs.py extract IMAGE[@OFFSET] /path OUT` copies a regular file out of a MINIX v1 image (direct + single indirect zones), e.g. partition 1 of oldlinux's hdc-0.11.img (@512). |
 | 8.8 | rootfs-bin, Makefile: real shell in the tiny rootfs (bash, ls, cat) | rootfs.img grows to 512 blocks (= RAM disk) with /bin/sh (bash), /usr/bin/ls, /usr/bin/cat from rootfs-bin/ - committed binaries, extracted once with `minixfs.py extract` from oldlinux-0.11's hdc-0.11.img. hello stays as /bin/hello. |
 | **T6** | test: interactive shell from the RAM disk | `make run`: bash prompt (bash#); typed commands work: ls -l /bin, cat /etc/rc, ls /usr/bin (passed). |
+
+### Phase 9: Documentation
+
+| Step | Commit | Notes |
+|---|---|---|
+| 9.1 | README.md, docs/: environment, boot flow and debugging | README.md: host tools and versions, build/run, QEMU monitor socket, gdb and VS Code debugging step by step, pitfalls, test points T1-T6, layout. docs/boot-flow.svg, docs/floppy-layout.svg, docs/debug-setup.svg; docs/gdb-session.svg (plain gdb) and docs/gdb-dashboard.svg (gdb-dashboard): real gdb console sessions replayed as animated SVGs at the top of README. .gdbinit + x86-qemu.gdb: gdb started in the project uses the compact gdb-dashboard layout (if installed). |
