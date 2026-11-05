@@ -18,7 +18,7 @@ CPP	=gcc -E -nostdinc -I../include
 
 OBJS=	open.o read_write.o inode.o file_table.o buffer.o super.o \
 	block_dev.o char_dev.o file_dev.o stat.o exec.o pipe.o namei.o \
-	bitmap.o fcntl.o ioctl.o truncate.o
+	bitmap.o fcntl.o ioctl.o truncate.o readdir.o
 
 fs.o: $(OBJS)
 	$(LD) -r -o fs.o $(OBJS)
@@ -88,6 +88,10 @@ read_write.o : read_write.c ../include/sys/stat.h ../include/sys/types.h \
   ../include/errno.h ../include/linux/kernel.h ../include/linux/sched.h \
   ../include/linux/head.h ../include/linux/fs.h ../include/linux/mm.h \
   ../include/signal.h ../include/asm/segment.h 
+readdir.o : readdir.c ../include/errno.h ../include/sys/stat.h \
+  ../include/sys/types.h ../include/linux/fs.h ../include/linux/sched.h \
+  ../include/linux/head.h ../include/linux/mm.h ../include/signal.h \
+  ../include/linux/kernel.h ../include/asm/segment.h 
 stat.o : stat.c ../include/errno.h ../include/sys/stat.h \
   ../include/sys/types.h ../include/linux/fs.h ../include/linux/sched.h \
   ../include/linux/head.h ../include/linux/mm.h ../include/signal.h \
