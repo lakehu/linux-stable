@@ -128,3 +128,4 @@ remake by Abdel Benamrouche (2007-2008), original patches in `ref/linux-0.01-rm/
 | Step | Commit | Notes |
 |---|---|---|
 | 10.1 | ref/linux-0.01-rm: Abdel Benamrouche's original ELF/syscall patches | Reference only, not built: patch_rm_3.0-3.5 and note_patch of the Linux 0.01 remake (Abdel Benamrouche, 2007-2008), fetched from the Internet Archive copy of draconux.free.fr; README.md lists sources, dates and how this branch differs. |
+| 10.2 | include/elf.h: minimal ELF32 header and program header | Elf32_Ehdr, Elf32_Phdr and the constants the loader checks (ELF magic, ELFCLASS32, little endian, ET_EXEC, EM_386, PT_LOAD, AT_NULL). The remake's patch_rm_3.0 copied the whole glibc elf.h (+ stdint.h, bits/*); not needed. |
