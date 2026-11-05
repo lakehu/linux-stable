@@ -1,0 +1,107 @@
+diff -Naur linux-0.01-rm-3.1/fs/sys_getdents.c linux-0.01-rm-3.2/fs/sys_getdents.c
+--- linux-0.01-rm-3.1/fs/sys_getdents.c	2007-12-25 10:27:19.000000000 +0100
++++ linux-0.01-rm-3.2/fs/sys_getdents.c	2007-12-25 10:46:22.000000000 +0100
+@@ -17,7 +17,7 @@
+ 	char c;
+ 	struct buffer_head * bh;
+ 	struct dir_entry * de;
+-//	struct minix_sb_info * info;
++
+ 	if (!inode ||/* !inode->i_sb ||*/ !S_ISDIR(inode->i_mode))
+ 		return -EBADF;/*
+ 	info = &inode->i_sb->u.minix_sb;
+diff -Naur linux-0.01-rm-3.1/init/main.c linux-0.01-rm-3.2/init/main.c
+--- linux-0.01-rm-3.1/init/main.c	2007-12-25 10:22:17.000000000 +0100
++++ linux-0.01-rm-3.2/init/main.c	2007-12-25 10:40:38.000000000 +0100
+@@ -116,16 +116,14 @@
+ 	return i;
+ }
+ 
+-static char * argv[] = { "-",NULL };
+-static char * envp[] = { "HOME=/usr/root", NULL };
++static char * argv[] = { "/bin/sh",NULL };
++static char * envp[] = { "HOME=/root","PATH=/bin","PWD=/", NULL };
+ 
+ void init(void)
+ {
+ 	int i,j;
+ 
+ 	setup();
+-	if (!fork())
+-		_exit(execve("/bin/update",NULL,NULL));
+ 	(void) open("/dev/tty0",O_RDWR,0);
+ 	(void) dup(0);
+ 	(void) dup(0);
+diff -Naur linux-0.01-rm-3.1/mm/memory.c linux-0.01-rm-3.2/mm/memory.c
+--- linux-0.01-rm-3.1/mm/memory.c	2007-12-25 10:22:17.000000000 +0100
++++ linux-0.01-rm-3.2/mm/memory.c	2007-12-25 12:36:27.000000000 +0100
+@@ -3,12 +3,19 @@
+ #include <linux/config.h>
+ #include <linux/head.h>
+ #include <linux/kernel.h>
++#include <linux/mm.h>
+ #include <asm/system.h>
+ 
+ int do_exit(long code);
+ 
+-#define invalidate() \
+-__asm__("movl %%eax,%%cr3"::"a" (0))
++inline void invalidate()
++{
++	int d0;
++	__asm__ __volatile(
++		"movl %%eax,%%cr3"
++		:"=&a" (d0)
++		:"0" (0) );
++}
+ 
+ #if (BUFFER_END < 0x100000)
+ #define LOW_MEM 0x100000
+@@ -25,8 +32,16 @@
+ #error "Won't work"
+ #endif
+ 
+-#define copy_page(from,to) \
+-__asm__("cld ; rep ; movsl"::"S" (from),"D" (to),"c" (1024)/*:"cx","di","si"*/)
++inline void copy_page(unsigned long from,unsigned long to)
++{
++int d0,d1,d2;
++__asm__ __volatile("cld\n\t"
++	"rep\n\t"
++	"movsl\n\t"
++	:"=&c" (d0), "=&S" (d1), "=&D" (d2)
++	:"0" (PAGE_SIZE/4),"1" (from),"2" (to)
++	:"memory");
++}
+ 
+ static unsigned short mem_map [ PAGING_PAGES ] = {0,};
+ 
+@@ -36,9 +51,9 @@
+  */
+ unsigned long get_free_page(void)
+ {
+-register unsigned long __res;// asm("ax");
++register unsigned long __res;
+ 
+-__asm__("std ; repne ; scasw\n\t"
++__asm__ __volatile__("std ; repne ; scasw\n\t"
+ 	"jne 1f\n\t"
+ 	"movw $1,2(%%edi)\n\t"
+ 	"sall $12,%%ecx\n\t"
+@@ -52,7 +67,7 @@
+ 	:"=a" (__res)
+ 	:"0" (0),"i" (LOW_MEM),"c" (PAGING_PAGES),
+ 	"D" (mem_map+PAGING_PAGES-1)
+-	:/*"di","cx",*/"dx");
++	:"dx");
+ return __res;
+ }
+ 
+@@ -80,7 +95,6 @@
+ {
+ 	unsigned long *pg_table;
+ 	unsigned long * dir, nr;
+-
+ 	if (from & 0x3fffff)
+ 		panic("free_page_tables called with wrong alignment");
+ 	if (!from)

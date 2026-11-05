@@ -1,0 +1,250 @@
+
+
+
+                       Linux 0.01 - Remake
+                    ===========================
+                       By Abdel Benamrouche  
+                        draconux@gmail.com
+                            2007-11-25
+
+
+
+this is all patchs needed to get linux 0.01.rm3 from old linux 0.01
+linux 0.01.rm3 is a "rebuild" of the linux 0.01.
+so you can :
+=> build it from your new linux 2.6 using gcc ( 4.x, 3.x or 2.95 )
+=> run it in an emulator. (should also work in real computer, but not yet tested)
+=> use elf format insetead of a.out ( needed to build some userland program )
+=> I have ported :
+	- bach-3.2 ( with completion and history )
+	- some programe of coreutils-6.9 ( ls, dir, rm, cat, echo etc ...)
+	- dietlibc 0.31 ( I don't use glibc )
+	- bin86 0.16.17 ( as86 is needed to build linux 0.01 )
+	- make-3.81 (seem to work)
+	- ncurses 2.0.7 ( I use the static library, needed by vim, less, m-emacs)
+	- vim 7.1 ( but ... scrolling up don't work well :( )
+
+	
+old linux 0.01
+================
+
+Official release of linux 0.01 ( created in 1991 by linus):
+ftp://ftp.kernel.org/pub/linux/kernel/Historic/linux-0.01.tar.bz2
+
+If you have an old computer with minix ( 1.5 I think) with Evan's patch,
+and old gnu utilities then you should be able to run this old linux kernel.
+without changing linux code (exept hardcoded HDD parameters + main Makefile).
+
+
+version system :
+=================
+
+linux 0.01-rm-x.y
+Ok I use "rm" because this is not an official linux work.
+rm mean remake.
+
+Since 0.01 will never change, x is the main version and y is the minor.
+x = 1 : get linux with gcc-1.4 to work in newer computer. (mainly bug fix)
+x = 2 : get linux with newer gcc to work.
+x = 3 : the goal is to have linux 0.01 working whith bash (ok), gcc (not done), and an editor (not done).
+
+
+download :
+===========
+
+You can find all patch, kernel sources, et needed software here :
+
+
+
+patch_rm_1.0 :
+==============
+
+fix boot/boot.s :
+as86 comment syntax is not the same as in 1991 :
+use ';' instead of '|'
+( nb boot/boot.s need as86, which is not gas )
+
+
+
+patch_rm_1.1 :
+==============
+
+Makefile update :
+- remove -mstring-insns from Makefile. 
+- remove minix specific stuff ( chmem & sync not needed)
+- build/tool.s is built using new gcc, boot.s use as86. All others
+  file need gcc 1.4 and old version of gas
+
+
+patch_rm_1.2 :
+=============
+
+- Makefile,hdreg.h,config.h & hd.c updated (contain hardcoded
+  information as HDD geometry)
+
+from this version you probably can run linux if you have an old computer :)
+( don't work yet with qemu ... )
+
+patch_rm_1.3:
+============
+
+bug fix in a.out.h:
+- N_MAGIC macro updated ...
+  We use same version of tools as linus, so it's strange to get 
+  different behaviour. 
+
+18c18
+< #define N_MAGIC(exec) ((exec).a_magic)
+---
+> #define N_MAGIC(exec) ((exec).a_magic & 0xffff )
+
+
+patch_rm_1.4:
+=============
+
+bug fix in kernel/hd.c:
+
+224c224
+<       if((i = inb(ERR_STAT)) != 1)
+---
+>       if((i = inb(HD_STATUS)) & ERR_STAT)
+
+
+patch_rm_1.5 :
+=============
+
+minor bug fix in fs/exec.c :
+-4 is not needed since we alredy do it inside copy_strings.
+(at line 184 of the same file)
+
+270c270
+<       p = copy_strings(envc,envp,page,PAGE_SIZE*MAX_ARG_PAGES-4);
+---
+>       p = copy_strings(envc,envp,page,PAGE_SIZE*MAX_ARG_PAGES);
+
+
+patch_rm_1.6 :
+============
+
+serious bug in hd.c :
+When we read hdd, we read 2 block of 512 bytes.
+
+In Qemu read interruption is called while executing port_read.
+So this_request->nsector is not yet decremented.
+
+this patch fix this problem.
+
+259,262c259,265
+<       port_read(HD_DATA,this_request->bh->b_data+
+<               512*(this_request->nsector&1),256);
+<       this_request->errors = 0;
+<       if (--this_request->nsector)
+---
+> 
+>       if (this_request->nsector==2){
+>               this_request->nsector--;
+>               port_read(HD_DATA,this_request->bh->b_data,256);
+>       }
+>       else{
+>               port_read(HD_DATA,this_request->bh->b_data+512,256);
+263a267,270
+>       }
+> 
+>       this_request->errors = 0;
+> 
+
+
+With this patch you can run old linux in a newer computer (not tested)
+ and in qemu (test ok):
+hello world program work fine :)
+
+for more info about runing this version of linux read :
+read http://draconux.free.fr/download/os-dev/linux0.01/doc_linux_0.01/LINUX_0.01_GCC_1.40 for more info
+
+
+patch_rm_1.7 :
+=============
+
+minor fix in tool/build.c needed by qemu.
+the flopy Image size is not a multiple of the sector size. So qemu
+may not read last flopy sector.
+
+
+patch_rm_2.0 :
+=============
+
+use gcc-2.95 or gcc-3.3 instead of gcc-1.4
+from gcc-1.4 too gcc-3.x they are too much change (mainly in asm syntax)
+
+Warning :
+If you find somewhere asm constraint error, please be nice enough to tell me :)
+
+
+patch_rm_2.1 :
+=============
+
+fix compilation warning
+
+
+patch_rm_2.2 :
+==============
+
+use gcc-4.x.
+
+
+patch_rm_3.0 :
+=============
+
+use elf binary format instead of a.out.
+
+
+patch_rm_3.1 :
+=============
+
+- added getdents system call
+
+
+patch_rm_3.2 :
+=============
+
+- asm constraint bug fix
+
+
+patch_rm_3.3 :
+=============
+
+- some change in system call.
+
+patch_rm_3.4 removed
+====================
+
+patch_rm_3.5 (080125):
+==============
+
+- use stat to get file size in Makefile
+- fix warning in unistd.h
+
+
+roadmap  :
+========================
+
+- porting an advanced editor ( vim or emacs )
+vim already works but with strange "scrolling up" ... ( scrolling down
+works fine)
+
+- porting gcc4.x and binutils. ( to build linux 0.01 in linux 0.01 :) )
+  
+- dietlibc can't be compiled with gcc-4. 
+  maybe because I have added malloc function from bash-3.2 
+
+
+End :
+==============
+
+that's all.
+Enjoy :)
+
+You have a question ? : mail me draconux@gmail.com
+You found a bug/error, in any software/documentation ? : please let me know.
+
+

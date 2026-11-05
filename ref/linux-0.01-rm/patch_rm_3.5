@@ -1,0 +1,63 @@
+diff -Naur linux-0.01-rm-3.3/fs/exec.c linux-0.01-rm-3.5/fs/exec.c
+--- linux-0.01-rm-3.3/fs/exec.c	2007-12-29 23:50:39.000000000 +0100
++++ linux-0.01-rm-3.5/fs/exec.c	2008-01-24 16:08:45.000000000 +0100
+@@ -269,19 +269,20 @@
+ 	bh=read_file_block(inode,block_num);
+ 	if (!bh) return -1;
+ 	cp_size=(size<BLOCK_SIZE-block_offset)?size:BLOCK_SIZE-block_offset;
+-	cp_block(bh->b_data+block_offset,(void*)dest,cp_size);
++	//note we add 3 to size to get it aligned to word boundary
++	cp_block(bh->b_data+block_offset,(void*)dest,cp_size+3);
+ 	brelse(bh);
+ 	dest+=cp_size;
+ 	size-=cp_size;
+ 	block_num++;
+ 
+-	//read other block
++	//read others blocks
+ 	while(size)
+ 	{
+ 		bh=read_file_block(inode,block_num);
+ 		if (!bh) return -1;
+ 		cp_size=(size<BLOCK_SIZE)?size:BLOCK_SIZE;
+-		cp_block(bh->b_data,(void*)dest,cp_size);
++		cp_block(bh->b_data,(void*)dest,cp_size+3);
+ 		block_num++;
+ 		size-=cp_size;
+ 		dest+=cp_size;
+diff -Naur linux-0.01-rm-3.3/include/unistd.h linux-0.01-rm-3.5/include/unistd.h
+--- linux-0.01-rm-3.3/include/unistd.h	2007-12-29 12:46:02.000000000 +0100
++++ linux-0.01-rm-3.5/include/unistd.h	2008-01-24 14:31:48.000000000 +0100
+@@ -54,6 +54,7 @@
+ #include <sys/times.h>
+ #include <sys/utsname.h>
+ #include <utime.h>
++#include <dirent.h>
+ 
+ #ifdef __LIBRARY__
+ 
+diff -Naur linux-0.01-rm-3.3/kernel/hd.c linux-0.01-rm-3.5/kernel/hd.c
+--- linux-0.01-rm-3.3/kernel/hd.c	2007-12-26 12:00:08.000000000 +0100
++++ linux-0.01-rm-3.5/kernel/hd.c	2008-01-24 16:21:02.000000000 +0100
+@@ -192,6 +192,7 @@
+ 	outb_p(sect,++port);
+ 	outb_p(cyl,++port);
+ 	outb_p(cyl>>8,++port);
++	/*0xB0 for slave, 0xA0 for master*/
+ 	outb_p(0xB0|(drive<<4)|head,++port);
+ 	outb(cmd,++port);
+ }
+diff -Naur linux-0.01-rm-3.3/Makefile linux-0.01-rm-3.5/Makefile
+--- linux-0.01-rm-3.3/Makefile	2007-12-26 13:01:59.000000000 +0100
++++ linux-0.01-rm-3.5/Makefile	2008-01-24 14:17:39.000000000 +0100
+@@ -61,8 +61,8 @@
+ 	(cd lib; make)
+ 
+ boot/boot:	boot/boot.s tools/system
+-	(echo -n "SYSSIZE = (";ls -l tools/system | grep system \
+-		| cut -c31-37 | tr '\012' ' '; echo "+ 15 ) / 16") > tmp.s
++	(echo -n "SYSSIZE = (";stat -c%s tools/system \
++		| tr '\012' ' '; echo "+ 15 ) / 16") > tmp.s	
+ 	cat boot/boot.s >> tmp.s
+ 	$(AS86) -o boot/boot.o tmp.s
+ 	rm -f tmp.s

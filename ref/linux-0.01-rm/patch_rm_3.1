@@ -1,0 +1,207 @@
+diff -Naur linux-0.01-rm-3.0/fs/Makefile linux-0.01-rm-3.1/fs/Makefile
+--- linux-0.01-rm-3.0/fs/Makefile	2007-12-23 20:34:40.000000000 +0100
++++ linux-0.01-rm-3.1/fs/Makefile	2007-12-25 10:27:35.000000000 +0100
+@@ -17,7 +17,7 @@
+ 
+ OBJS=	open.o read_write.o inode.o file_table.o buffer.o super.o \
+ 	block_dev.o char_dev.o file_dev.o stat.o exec.o pipe.o namei.o \
+-	bitmap.o fcntl.o ioctl.o tty_ioctl.o truncate.o
++	bitmap.o fcntl.o ioctl.o tty_ioctl.o truncate.o sys_getdents.o
+ 
+ fs.o: $(OBJS)
+ 	$(LD) -r -o fs.o $(OBJS)
+diff -Naur linux-0.01-rm-3.0/fs/sys_getdents.c linux-0.01-rm-3.1/fs/sys_getdents.c
+--- linux-0.01-rm-3.0/fs/sys_getdents.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-0.01-rm-3.1/fs/sys_getdents.c	2007-12-25 10:27:19.000000000 +0100
+@@ -0,0 +1,68 @@
++
++#include <dirent.h>
++#include <errno.h>
++
++#include <linux/sched.h>
++#include <linux/kernel.h>
++#include <linux/mm.h>
++#include <asm/segment.h>
++#include <sys/stat.h>
++
++struct buffer_head* read_file_block(struct m_inode * inode,int block_num);
++
++static int minix_getdents(struct m_inode * inode, struct file * filp,
++	struct dirent * dirent, int count)
++{
++	unsigned int offset,i;
++	char c;
++	struct buffer_head * bh;
++	struct dir_entry * de;
++//	struct minix_sb_info * info;
++	if (!inode ||/* !inode->i_sb ||*/ !S_ISDIR(inode->i_mode))
++		return -EBADF;/*
++	info = &inode->i_sb->u.minix_sb;
++	if (filp->f_pos & (info->s_dirsize - 1))
++		return -EBADF;*/
++	while (filp->f_pos < inode->i_size) {
++		offset = filp->f_pos & 1023;
++		bh = read_file_block(inode,(filp->f_pos)/BLOCK_SIZE);
++		if (!bh) {
++			filp->f_pos += 1024-offset;
++			continue;
++		}
++		while (offset < 1024 && filp->f_pos < inode->i_size) {
++			de = (struct dir_entry *) (offset + bh->b_data);
++			offset += sizeof(struct dir_entry);//info->s_dirsize; 
++			filp->f_pos += sizeof(struct dir_entry);
++			if (de->inode) {
++				for (i = 0; i < NAME_LEN; i++)
++					if ((c = de->name[i]) != 0)
++						put_fs_byte(c,i+dirent->d_name);
++					else
++						break;
++				if (i) {
++					put_fs_long(de->inode,&dirent->d_ino);
++					put_fs_byte(0,i+dirent->d_name);
++					put_fs_word(i,&dirent->d_reclen);
++					brelse(bh);
++					return i;
++				}
++			}
++		}
++		brelse(bh);
++	}
++	return 0;
++}
++
++int sys_getdents(unsigned int fd, struct dirent *dirp, unsigned int count)
++{
++	struct file * file;
++	struct m_inode * inode;
++	if (fd >= NR_OPEN || !(file = current->filp[fd]) ||
++	    !(inode = file->f_inode))
++		return -EBADF;
++
++	verify_area(dirp, sizeof (*dirp));
++	return minix_getdents(inode,file,dirp,count);
++}
++
+diff -Naur linux-0.01-rm-3.0/include/dirent.h linux-0.01-rm-3.1/include/dirent.h
+--- linux-0.01-rm-3.0/include/dirent.h	1970-01-01 01:00:00.000000000 +0100
++++ linux-0.01-rm-3.1/include/dirent.h	2007-12-25 10:31:03.000000000 +0100
+@@ -0,0 +1,39 @@
++
++#ifndef __DIRENT_H
++#define __DIRENT_H
++
++#include <linux/fs.h>
++
++
++#define NAME_MAX NAME_LEN
++
++struct dirent{
++//	long d_fileno;
++	long d_ino;
++	off_t d_off;
++	unsigned short d_reclen;
++//	unsigned char d_type;
++	char d_name[256];
++//	struct dir_entry d_kent;
++};
++
++struct __DIR{
++	struct dirent d_dent;
++	int d_pos;
++	int d_fd;
++};
++
++#define DIR struct __DIR 
++//#define dirent dir_entry
++
++//#define D_NAMELEN(d) 256
++
++DIR *opendir (const char *name);
++
++int closedir (DIR *dir);
++
++struct dirent *readdir (DIR *dir);
++
++#endif 
++
++
+diff -Naur linux-0.01-rm-3.0/include/linux/sys.h linux-0.01-rm-3.1/include/linux/sys.h
+--- linux-0.01-rm-3.0/include/linux/sys.h	2007-12-23 20:26:44.000000000 +0100
++++ linux-0.01-rm-3.1/include/linux/sys.h	2007-12-25 10:34:45.000000000 +0100
+@@ -65,6 +65,8 @@
+ extern int sys_getppid();
+ extern int sys_getpgrp();
+ extern int sys_setsid();
++extern int sys_getdents();
++extern int sys_null();	/* not implemented sys_call */
+ 
+ fn_ptr sys_call_table[] = { sys_setup, sys_exit, sys_fork, sys_read,
+ sys_write, sys_open, sys_close, sys_waitpid, sys_creat, sys_link,
+@@ -77,4 +79,23 @@
+ sys_getgid, sys_signal, sys_geteuid, sys_getegid, sys_acct, sys_phys,
+ sys_lock, sys_ioctl, sys_fcntl, sys_mpx, sys_setpgid, sys_ulimit,
+ sys_uname, sys_umask, sys_chroot, sys_ustat, sys_dup2, sys_getppid,
+-sys_getpgrp,sys_setsid};
++sys_getpgrp,sys_setsid, sys_null /*67*/,sys_null,sys_null,
++sys_null /*70*/,sys_null,sys_null,sys_null,sys_null,sys_null,sys_null,
++sys_null,sys_null,sys_null,
++sys_null /*80*/,sys_null,sys_null,sys_null,sys_null,sys_null,sys_null,
++sys_null,sys_null,sys_null,
++sys_null /*90*/,sys_null,sys_null,sys_null,sys_null,sys_null,sys_null,
++sys_null,sys_null,sys_null,
++sys_null /*100*/,sys_null,sys_null,sys_null,sys_null,sys_null,sys_null,
++sys_null,sys_null,sys_null,
++sys_null /*110*/,sys_null,sys_null,sys_null,sys_null,sys_null,sys_null,
++sys_null,sys_null,sys_null,
++sys_null /*120*/,sys_null,sys_null,sys_null,sys_null,sys_null,sys_null,
++sys_null,sys_null,sys_null,
++sys_null /*130*/,sys_null,sys_null,sys_null,sys_null,sys_null,sys_null,
++sys_null,sys_null,sys_null,
++sys_null /*140*/,sys_getdents,sys_null,sys_null,sys_null,sys_null,sys_null,
++sys_null,sys_null,sys_null,
++sys_null /*150*/,sys_null,sys_null,sys_null,sys_null,sys_null,sys_null,
++sys_null,sys_null,sys_null
++};
+diff -Naur linux-0.01-rm-3.0/include/unistd.h linux-0.01-rm-3.1/include/unistd.h
+--- linux-0.01-rm-3.0/include/unistd.h	2007-12-23 20:26:44.000000000 +0100
++++ linux-0.01-rm-3.1/include/unistd.h	2007-12-25 10:27:07.000000000 +0100
+@@ -124,6 +124,7 @@
+ #define __NR_getppid	64
+ #define __NR_getpgrp	65
+ #define __NR_setsid	66
++#define __NR_getdents	141
+ 
+ #define _syscall0(type,name) \
+ type name(void) \
+@@ -243,5 +244,6 @@
+ int getppid(void);
+ pid_t getpgrp(void);
+ pid_t setsid(void);
++int getdents(unsigned int fd, struct dirent *dirp, unsigned int count);
+ 
+ #endif
+diff -Naur linux-0.01-rm-3.0/kernel/sys.c linux-0.01-rm-3.1/kernel/sys.c
+--- linux-0.01-rm-3.0/kernel/sys.c	2007-12-23 20:26:44.000000000 +0100
++++ linux-0.01-rm-3.1/kernel/sys.c	2007-12-25 10:35:53.000000000 +0100
+@@ -214,3 +214,9 @@
+ 	current->umask = mask & 0777;
+ 	return (old);
+ }
++
++int sys_null()
++{
++	return -ENOSYS;
++}
++
+diff -Naur linux-0.01-rm-3.0/kernel/system_call.s linux-0.01-rm-3.1/kernel/system_call.s
+--- linux-0.01-rm-3.0/kernel/system_call.s	2007-12-24 16:24:01.000000000 +0100
++++ linux-0.01-rm-3.1/kernel/system_call.s	2007-12-25 10:30:41.000000000 +0100
+@@ -45,7 +45,7 @@
+ restorer = 16		# address of info-restorer
+ sig_fn	= 20		# table of 32 signal addresses
+ 
+-nr_system_calls = 67
++nr_system_calls = 150
+ 
+ .globl system_call,sys_fork,timer_interrupt,hd_interrupt,sys_execve
+ 

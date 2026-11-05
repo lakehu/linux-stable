@@ -7,6 +7,9 @@ oldlinux-0.11 (yuan-xy/Linux-0.11).
 Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unless required;
 (4) tiny rootfs; (5) many small commits, one small feature each.
 
+Phase 10 (branch `elf-uclibc`) runs static i386 ELF programs (uClibc-ng, BusyBox). Reference: the Linux 0.01
+remake by Abdel Benamrouche (2007-2008), original patches in `ref/linux-0.01-rm/`.
+
 ## Steps so far
 
 ### Phase 1: Minimal build setup
@@ -119,3 +122,9 @@ Rules: (1) easy to hard; (2) no unnecessary changes; (3) assembly unchanged unle
 | Step | Commit | Notes |
 |---|---|---|
 | 9.1 | README.md, docs/: environment, boot flow and debugging | README.md: host tools and versions, build/run, QEMU monitor socket, gdb and VS Code debugging step by step, pitfalls, test points T1-T6, layout. docs/boot-flow.svg, docs/floppy-layout.svg, docs/debug-setup.svg; docs/gdb-session.svg (plain gdb) and docs/gdb-dashboard.svg (gdb-dashboard): real gdb console sessions replayed as animated SVGs at the top of README. .gdbinit + x86-qemu.gdb: gdb started in the project uses the compact gdb-dashboard layout (if installed). |
+
+### Phase 10: ELF executables (branch elf-uclibc)
+
+| Step | Commit | Notes |
+|---|---|---|
+| 10.1 | ref/linux-0.01-rm: Abdel Benamrouche's original ELF/syscall patches | Reference only, not built: patch_rm_3.0-3.5 and note_patch of the Linux 0.01 remake (Abdel Benamrouche, 2007-2008), fetched from the Internet Archive copy of draconux.free.fr; README.md lists sources, dates and how this branch differs. |
