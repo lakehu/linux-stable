@@ -43,19 +43,30 @@ extern int sys_close(int fd);
  * create_tables() parses the env- and arg-strings in new user
  * memory and creates the pointer tables from them, and puts their
  * addresses on the "stack", returning the new stack pointer value.
+ *
+ * a.out (0.11 libc): argc, argv, envp, then the argv[] and envp[] arrays.
+ * ELF (i386 ABI): argc, argv[] ... 0, envp[] ... 0, auxiliary vector;
+ * the auxiliary vector is empty here (only AT_NULL).
  */
-static unsigned long * create_tables(char * p,int argc,int envc)
+static unsigned long * create_tables(char * p,int argc,int envc,int elf)
 {
 	unsigned long *argv,*envp;
 	unsigned long * sp;
 
 	sp = (unsigned long *) (0xfffffffc & (unsigned long) p);
+	if (elf) {
+		sp -= 2;
+		put_fs_long(AT_NULL,sp);
+		put_fs_long(0,sp+1);
+	}
 	sp -= envc+1;
 	envp = sp;
 	sp -= argc+1;
 	argv = sp;
-	put_fs_long((unsigned long)envp,--sp);
-	put_fs_long((unsigned long)argv,--sp);
+	if (!elf) {
+		put_fs_long((unsigned long)envp,--sp);
+		put_fs_long((unsigned long)argv,--sp);
+	}
 	put_fs_long((unsigned long)argc,--sp);
 	while (argc-->0) {
 		put_fs_long((unsigned long) p,argv++);
@@ -444,7 +455,7 @@ restart_interp:
 		last_task_used_math = NULL;
 	current->used_math = 0;
 	p += change_ldt(elf ? 0x4000000 : ex.a_text,page)-MAX_ARG_PAGES*PAGE_SIZE;
-	p = (unsigned long) create_tables((char *)p,argc,envc);
+	p = (unsigned long) create_tables((char *)p,argc,envc,elf);
 	if (elf) {
 		current->brk = current->end_data = current->end_code =
 			elf_load(inode, &entry);
@@ -461,6 +472,8 @@ restart_interp:
 		put_fs_byte(0,(char *) (i++));
 	eip[0] = elf ? entry : ex.a_entry;	/* eip, magic happens :-) */
 	eip[3] = p;			/* stack pointer */
+	if (elf)
+		eip[-4] = 0;		/* %edx: no rtld_fini (i386 ELF ABI) */
 	return 0;
 exec_error2:
 	iput(inode);
